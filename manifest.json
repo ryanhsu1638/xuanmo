@@ -1,0 +1,16 @@
+{
+  "name": "玄墨萬年曆",
+  "short_name": "玄墨萬年曆",
+  "start_url": "https://ryanhsu1638.github.io/xuanmo/",
+  "display": "standalone",
+  "background_color": "#0F1115",
+  "theme_color": "#0F1115",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:[omitted-by-pwabuilder]",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
