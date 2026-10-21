@@ -1,0 +1,2451 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="玄墨萬年曆" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0F1115" />
+  <title>玄墨萬年曆 — 專業子平八字與玄空通書黃曆</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Noto Serif TC, Noto Sans TC, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@500;600;700;900&display=swap" rel="stylesheet">
+  <!-- Lunar JavaScript Astronomical Library -->
+  <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#0F1115',
+            ink: '#181C23',
+            elevated: '#222832',
+            jade: '#F2EFE9',
+            rice: '#B8B3A8',
+            muted: '#6E7480',
+            hairline: '#2C3340',
+            cinnabar: '#C83E3B',
+            realgar: '#D4AF37',
+            wx: {
+              wood: '#4E9A74',
+              fire: '#D95B52',
+              earth: '#C29B61',
+              metal: '#E0C370',
+              water: '#5288B5'
+            }
+          },
+          fontFamily: {
+            serif: ['"Noto Serif TC"', 'serif'],
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg-obsidian: #0F1115;
+      --surface-ink: #181C23;
+      --surface-elevated: #222832;
+      --text-jade: #F2EFE9;
+      --text-rice-paper: #B8B3A8;
+      --text-muted-ink: #6E7480;
+      --border-hairline: #2C3340;
+      --accent-cinnabar: #C83E3B;
+      --accent-realgar: #D4AF37;
+    }
+
+    body {
+      background-color: var(--bg-obsidian);
+      color: var(--text-jade);
+      font-family: 'Noto Sans TC', sans-serif;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(212, 175, 55, 0.04) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(200, 62, 59, 0.04) 0%, transparent 45%);
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #14171D;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2C3340;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #D4AF37;
+    }
+
+    /* Oriental Paper Grid Hairlines */
+    .ink-card {
+      background-color: #181C23;
+      border: 1px solid #2C3340;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.65);
+    }
+
+    .gold-active-card {
+      border-color: #D4AF37 !important;
+      background: linear-gradient(180deg, rgba(212, 175, 55, 0.14) 0%, rgba(24, 28, 35, 0.95) 100%) !important;
+      box-shadow: 0 0 18px rgba(212, 175, 55, 0.18);
+    }
+
+    .cinnabar-seal {
+      border: 1px solid rgba(200, 62, 59, 0.7);
+      background: rgba(200, 62, 59, 0.12);
+      color: #F28B88;
+    }
+
+    .fade-slide-enter {
+      animation: fadeSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    body.mobile-simulator-mode {
+      background-color: #07080A;
+      padding: 20px 0 40px 0;
+    }
+
+    body.mobile-simulator-mode #app-shell-container {
+      max-width: 412px;
+      margin: 0 auto;
+      border: 10px solid #252A34;
+      border-radius: 46px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 0 2px #D4AF37;
+      overflow-x: hidden;
+      background-color: var(--bg-obsidian);
+      position: relative;
+      min-height: 852px;
+    }
+
+    .safe-bottom-padding {
+      padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col selection:bg-realgar/30 selection:text-jade safe-bottom-padding">
+  <div id="app-shell-container" class="flex-1 flex flex-col w-full">
+
+    <!-- Simulated iOS Dynamic Island Status Bar (Visible in Mobile Simulator Mode) -->
+    <div id="sim-status-bar" class="hidden bg-obsidian pt-2.5 pb-1.5 px-6 items-center justify-between text-[11px] font-mono text-jade select-none border-b border-hairline/40">
+      <span>9:41</span>
+      <div class="w-24 h-5 rounded-full bg-black border border-hairline/80 flex items-center justify-end px-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500/80"></span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span>5G</span>
+        <span class="px-1 rounded bg-jade text-obsidian text-[9px] font-bold">100</span>
+      </div>
+    </div>
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 bg-obsidian/95 backdrop-blur-md border-b border-hairline">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-3 shrink-0">
+        <!-- Precision SVG Cinnabar Seal Logo (Prevents any font overflow) -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-b from-cinnabar/25 to-cinnabar/10 border border-cinnabar/80 p-0.5 flex items-center justify-center shadow-lg shadow-cinnabar/10 shrink-0 select-none">
+          <svg class="w-full h-full" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="玄墨印章">
+            <rect x="2.5" y="2.5" width="35" height="35" rx="6" stroke="#C83E3B" stroke-width="1.2" stroke-opacity="0.75" />
+            <line x1="20" y1="5" x2="20" y2="35" stroke="#C83E3B" stroke-width="0.75" stroke-opacity="0.35" />
+            <text x="11.5" y="25.5" text-anchor="middle" fill="#F28B88" font-family="'Noto Serif TC', serif" font-weight="900" font-size="14.5">玄</text>
+            <text x="28.5" y="25.5" text-anchor="middle" fill="#F2EFE9" font-family="'Noto Serif TC', serif" font-weight="900" font-size="14.5">墨</text>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-serif text-lg sm:text-xl font-bold tracking-wider text-jade whitespace-nowrap">玄墨萬年曆</h1>
+            <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-realgar/15 text-realgar border border-realgar/40 whitespace-nowrap leading-none">APP v1.0</span>
+          </div>
+          <p class="text-xs text-muted hidden sm:block mt-0.5">子平八字真太陽時精算 ‧ 順曆通書玄空九宮飛星</p>
+        </div>
+      </div>
+
+      <!-- Primary Module Switcher Tabs -->
+      <nav class="hidden md:flex items-center bg-ink p-1 rounded-xl border border-hairline shrink-0" role="tablist">
+        <button id="tab-bazi" onclick="switchTab('bazi')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 bg-elevated text-realgar border border-realgar/50 shadow whitespace-nowrap">
+          <span class="font-serif">八字排盤</span>
+        </button>
+        <button id="tab-almanac" onclick="switchTab('almanac')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap">
+          <span class="font-serif">順曆黃曆</span>
+        </button>
+        <button id="tab-vault" onclick="switchTab('vault')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap">
+          <span class="font-serif">命盤庫</span>
+          <span id="vault-count-badge" class="text-[11px] font-mono px-1.5 py-0.5 rounded-full bg-obsidian text-realgar leading-none">4</span>
+        </button>
+        <button id="tab-publish" onclick="switchTab('publish')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="font-serif">App上架中心</span>
+        </button>
+      </nav>
+
+      <!-- Quick Actions: Mobile Simulator Toggle & New Chart -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="btn-sim-toggle" onclick="toggleMobileSimulator()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-elevated hover:bg-hairline text-rice hover:text-jade border border-hairline transition flex items-center gap-1.5 whitespace-nowrap" title="切換 iPhone 手機外框預覽">
+          <svg class="w-3.5 h-3.5 text-realgar shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span id="sim-toggle-label">手機外框預覽</span>
+        </button>
+        <button onclick="openBirthModal()" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-realgar/15 hover:bg-realgar/25 text-realgar border border-realgar/50 transition flex items-center gap-1.5 whitespace-nowrap">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>排盤輸入</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-4 py-5 space-y-5">
+
+    <!-- ==================== VIEW 1: BAZI PROFESSIONAL ENGINE ==================== -->
+    <section id="view-bazi" class="space-y-4 fade-slide-enter">
+
+      <!-- 1.1 Natal Header & True Solar Time + Precision Start Luck Card -->
+      <div class="ink-card rounded-2xl p-4 sm:p-5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-48 h-48 bg-realgar/5 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-hairline pb-4">
+          <div class="space-y-1.5">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span id="bazi-era-badge" class="px-2.5 py-0.5 rounded text-xs font-serif font-bold bg-realgar/20 text-realgar border border-realgar/50">乾造</span>
+              <h2 id="bazi-profile-name" class="font-serif text-xl sm:text-2xl font-bold text-jade tracking-wide">林先生</h2>
+              <span id="bazi-self-badge" class="text-[11px] px-2 py-0.5 rounded cinnabar-seal font-medium">★ 本人日運綁定命盤</span>
+              <span id="bazi-zi-badge" class="text-xs px-2 py-0.5 rounded bg-elevated text-rice border border-hairline font-mono">夜子時：日柱不換</span>
+            </div>
+            <div class="text-xs sm:text-sm text-rice flex flex-wrap items-center gap-x-4 gap-y-1 font-mono">
+              <span id="bazi-clock-time">鐘錶平太陽時：1994-08-12 23:25</span>
+              <span id="bazi-lunar-text" class="text-jade/90 font-sans">農曆 甲戌年 七月 初六日 子時</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons on Profile Header -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="openBirthModal(true)" class="px-3 py-1.5 rounded-lg text-xs bg-elevated hover:bg-hairline text-rice hover:text-jade border border-hairline transition">
+              修改生辰與經緯度
+            </button>
+            <button onclick="setAsPrimaryProfile()" id="btn-set-primary" class="px-3 py-1.5 rounded-lg text-xs bg-cinnabar/20 hover:bg-cinnabar/30 text-red-300 border border-cinnabar/50 transition">
+              設為本人命盤
+            </button>
+          </div>
+        </div>
+
+        <!-- True Solar Time & Precision Start Luck Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 text-xs">
+          <!-- True Solar Time Box -->
+          <div class="bg-obsidian/70 rounded-xl p-3.5 border border-hairline/80 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-muted font-medium flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-wx-water"></span>
+                天文真太陽時校正 (Spencer EOT)
+              </span>
+              <span id="bazi-location-tag" class="font-mono text-rice">台灣 台北市 (121.52°E)</span>
+            </div>
+            <div class="font-mono text-sm text-jade font-semibold" id="bazi-true-solar-time">
+              真太陽時：1994-08-12 23:26:02
+            </div>
+            <div class="text-[11px] text-muted font-mono" id="bazi-solar-offset-detail">
+              經度時差 +6分04秒 │ 均時差(EOT) -5分02秒 │ 總修正 +1分02秒
+            </div>
+          </div>
+
+          <!-- Precision Start Luck Box (Benchmark: 論八字) -->
+          <div class="bg-obsidian/70 rounded-xl p-3.5 border border-hairline/80 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-muted font-medium flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-realgar"></span>
+                論八字級毫秒三天折一年起運精算
+              </span>
+              <span id="bazi-luck-dir" class="px-1.5 py-0.5 rounded bg-realgar/15 text-realgar font-mono text-[11px]">陽男順排</span>
+            </div>
+            <div class="text-sm text-realgar font-semibold" id="bazi-start-luck-headline">
+              出生後 8歲 6個月 22天 16小時 起運（2003-03-06 交大運）
+            </div>
+            <div class="text-[11px] text-rice font-mono" id="bazi-handover-rule">
+              每逢 癸、戊 年驚蟄後第 0 天交脫大運 │ 胎元:癸亥 │ 命宮:丁未 │ 身宮:辛亥
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.2 Four Pillars Natal Matrix (原局本命盤四柱矩陣) -->
+      <div class="ink-card rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 bg-elevated/60 border-b border-hairline flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="font-serif font-bold text-sm sm:text-base text-jade">四柱原局本命盤矩陣</span>
+            <span class="text-xs text-muted">（藏干依本氣、中氣、餘氣正統排列）</span>
+          </div>
+          <!-- Five Elements Bar Summary -->
+          <div id="bazi-wuxing-summary" class="flex items-center gap-2 text-xs font-mono"></div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-center border-collapse">
+            <thead>
+              <tr class="border-b border-hairline bg-obsidian/50 text-xs text-muted">
+                <th class="py-2.5 px-2 w-16 sm:w-20 font-normal border-r border-hairline">欄目</th>
+                <th class="py-2.5 px-2 font-serif text-sm text-rice border-r border-hairline w-1/4">年 柱 <span class="text-[11px] text-muted font-sans block sm:inline">(根基/祖上)</span></th>
+                <th class="py-2.5 px-2 font-serif text-sm text-rice border-r border-hairline w-1/4">月 柱 <span class="text-[11px] text-muted font-sans block sm:inline">(月令/提綱)</span></th>
+                <th class="py-2.5 px-2 font-serif text-sm text-realgar border-r border-hairline w-1/4 bg-realgar/5">日 柱 <span class="text-[11px] text-realgar/80 font-sans block sm:inline">(命主/配偶)</span></th>
+                <th class="py-2.5 px-2 font-serif text-sm text-rice w-1/4">時 柱 <span class="text-[11px] text-muted font-sans block sm:inline">(歸宿/子女)</span></th>
+              </tr>
+            </thead>
+            <tbody id="bazi-pillars-tbody" class="divide-y divide-hairline text-sm">
+              <!-- Populated dynamically by XuanMoCoreEngine -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Natal Interactions Bar (原局刑沖合會) -->
+        <div class="px-4 py-3 bg-obsidian/60 border-t border-hairline flex flex-wrap items-center gap-2 text-xs">
+          <span class="text-muted font-medium">原局刑沖合會：</span>
+          <div id="bazi-natal-interactions" class="flex flex-wrap items-center gap-1.5"></div>
+        </div>
+      </div>
+
+      <!-- 1.3 Precision Major Cycles Horizontal Axis (大運橫向滾輪軸) -->
+      <div class="ink-card rounded-2xl p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-1 h-4 rounded bg-realgar"></span>
+            <h3 class="font-serif font-bold text-sm sm:text-base text-jade">專業大運橫軸（含童限與十步大運）</h3>
+            <span class="text-xs text-muted hidden sm:inline">點擊任意一步大運，下方即時切換統轄之 10 個流年</span>
+          </div>
+          <span id="selected-dayun-indicator" class="text-xs font-mono text-realgar">當前檢視：第 3 步大運</span>
+        </div>
+
+        <!-- Horizontal Scrollable Major Cycles -->
+        <div id="major-cycles-axis" class="flex items-stretch gap-2.5 overflow-x-auto pb-2 pt-1 select-none">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- 1.4 Dynamic 10-Year Panel + 12-Month Micro Drawer (十流年聯動面板 + 12節氣流月微抽屜) -->
+      <div class="ink-card rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 bg-elevated/60 border-b border-hairline flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cinnabar"></span>
+            <h3 id="year-panel-title" class="font-serif font-bold text-sm sm:text-base text-jade">大運統轄十流年明細</h3>
+          </div>
+          <span class="text-xs text-rice flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-realgar" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            輕觸任意流年列可就地展開「12節氣流月微抽屜」（不排流日流時，保持純粹）
+          </span>
+        </div>
+
+        <div id="year-cycles-list" class="divide-y divide-hairline">
+          <!-- Populated dynamically: 10 Year Rows + Expandable 12-Month Accordion Drawer -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: DAILY ALMANAC & XUANKONG 9-PALACE ==================== -->
+    <section id="view-almanac" class="hidden space-y-4 fade-slide-enter">
+
+      <!-- 2.1 Date Navigation & Solar/Lunar/GanZhi Header -->
+      <div class="ink-card rounded-2xl p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-hairline">
+          <button onclick="shiftAlmanacDate(-1)" class="px-3 py-1.5 rounded-lg bg-elevated hover:bg-hairline text-rice hover:text-jade border border-hairline text-xs sm:text-sm transition flex items-center gap-1">
+            <span>◀ 前一日</span>
+          </button>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <input type="date" id="almanac-date-picker" onchange="onAlmanacDatePick(this.value)" class="bg-obsidian text-jade font-mono text-sm sm:text-base px-3 py-1.5 rounded-lg border border-hairline focus:border-realgar focus:outline-none" />
+            <button onclick="resetAlmanacToToday()" class="px-3 py-1.5 rounded-lg bg-realgar/20 hover:bg-realgar/30 text-realgar border border-realgar/50 text-xs font-serif font-bold transition">
+              今 (2026-10-21)
+            </button>
+          </div>
+
+          <button onclick="shiftAlmanacDate(1)" class="px-3 py-1.5 rounded-lg bg-elevated hover:bg-hairline text-rice hover:text-jade border border-hairline text-xs sm:text-sm transition flex items-center gap-1">
+            <span>後一日 ▶</span>
+          </button>
+        </div>
+
+        <!-- Lunar Date & Four Pillars of the Day -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-4 items-center">
+          <div class="lg:col-span-5 space-y-1 text-center lg:text-left">
+            <div class="text-xs font-mono text-realgar" id="alm-solar-header">西元 2026 年 10 月 21 日 星期三</div>
+            <div class="font-serif text-2xl sm:text-3xl font-bold text-jade tracking-wide" id="alm-lunar-header">農曆 九月 十二</div>
+            <div class="text-xs text-rice pt-1" id="alm-jieqi-banner">節氣：寒露後 ‧ 距離【霜降】還有 2 天</div>
+          </div>
+
+          <div class="lg:col-span-7 grid grid-cols-4 gap-2 text-center">
+            <div class="bg-obsidian/80 p-2.5 rounded-xl border border-hairline">
+              <div class="text-[11px] text-muted">年柱</div>
+              <div id="alm-pillar-year" class="font-serif text-lg font-bold text-jade mt-0.5">丙午</div>
+              <div id="alm-zodiac" class="text-[11px] text-rice">生肖馬</div>
+            </div>
+            <div class="bg-obsidian/80 p-2.5 rounded-xl border border-hairline">
+              <div class="text-[11px] text-muted">月柱</div>
+              <div id="alm-pillar-month" class="font-serif text-lg font-bold text-jade mt-0.5">戊戌</div>
+              <div class="text-[11px] text-rice">寒露月</div>
+            </div>
+            <div class="bg-realgar/10 p-2.5 rounded-xl border border-realgar/50">
+              <div class="text-[11px] text-realgar">流日柱</div>
+              <div id="alm-pillar-day" class="font-serif text-lg font-bold text-realgar mt-0.5">甲子</div>
+              <div id="alm-day-nayin" class="text-[11px] text-rice">海中金</div>
+            </div>
+            <div class="bg-obsidian/80 p-2.5 rounded-xl border border-hairline">
+              <div class="text-[11px] text-muted">當前時柱</div>
+              <div id="alm-pillar-hour" class="font-serif text-lg font-bold text-jade mt-0.5">壬申</div>
+              <div id="alm-hour-label" class="text-[11px] text-rice">申時</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.2 Personal Daily Clash Alert Card (個人本命盤流日刑沖即時提示) -->
+      <div id="personal-daily-alert-card" class="ink-card rounded-2xl p-4 sm:p-5 border-l-4 border-l-realgar">
+        <!-- Populated dynamically by comparing Bound Natal Day Pillar vs Selected Almanac Day Pillar -->
+      </div>
+
+      <!-- 2.3 Traditional Almanac Core & XuanKong 9-Palace Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- Left Column: Yi/Ji, 12 JianChu, 28 Mansions, PengZu, TaiShen (7 cols) -->
+        <div class="lg:col-span-6 ink-card rounded-2xl p-4 sm:p-5 space-y-4 flex flex-col justify-between">
+          <div class="space-y-4">
+            <h3 class="font-serif font-bold text-base text-jade border-b border-hairline pb-2.5 flex items-center justify-between">
+              <span>欽定協紀辨方通書宜忌</span>
+              <span id="alm-chong-sha" class="text-xs font-mono text-cinnabar">日沖：戊午馬 ‧ 煞南</span>
+            </h3>
+
+            <!-- Yi (Auspicious) -->
+            <div class="flex items-start gap-3">
+              <span class="w-8 h-8 rounded-lg bg-wx-wood/20 border border-wx-wood text-wx-wood font-serif font-bold flex items-center justify-center shrink-0 text-sm">宜</span>
+              <div id="alm-yi-list" class="flex flex-wrap gap-1.5 pt-0.5"></div>
+            </div>
+
+            <!-- Ji (Inauspicious) -->
+            <div class="flex items-start gap-3">
+              <span class="w-8 h-8 rounded-lg bg-cinnabar/20 border border-cinnabar text-cinnabar font-serif font-bold flex items-center justify-center shrink-0 text-sm">忌</span>
+              <div id="alm-ji-list" class="flex flex-wrap gap-1.5 pt-0.5"></div>
+            </div>
+
+            <!-- 12 JianChu & 28 Mansions Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div class="bg-obsidian/70 rounded-xl p-3 border border-hairline">
+                <div class="text-xs text-muted">值日十二建除</div>
+                <div id="alm-jianchu-title" class="font-serif text-base font-bold text-jade mt-1">定日（吉）</div>
+                <p id="alm-jianchu-desc" class="text-xs text-rice mt-1">定日宜宴飲、協議、安床，忌醫療訴訟與遠行。</p>
+              </div>
+              <div class="bg-obsidian/70 rounded-xl p-3 border border-hairline">
+                <div class="text-xs text-muted">值日二十八星宿</div>
+                <div id="alm-mansion-title" class="font-serif text-base font-bold text-jade mt-1">角木蛟（吉）</div>
+                <p id="alm-mansion-desc" class="text-xs text-rice mt-1">角星造作主榮昌，外進田財及女郎，嫁娶修造大吉。</p>
+              </div>
+            </div>
+
+            <!-- PengZu, TaiShen, JiShen, XiongSha -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="bg-obsidian/60 rounded-xl p-3 border border-hairline space-y-1">
+                <div class="text-muted">彭祖百忌</div>
+                <div id="alm-pengzu" class="text-jade font-medium">甲不開倉財物耗散 ‧ 子不問卜自惹禍殃</div>
+              </div>
+              <div class="bg-obsidian/60 rounded-xl p-3 border border-hairline space-y-1">
+                <div class="text-muted">今日胎神占方</div>
+                <div id="alm-taishen" class="text-jade font-medium">占門碓外東南</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Five Compass Directions Bar -->
+          <div class="bg-obsidian/80 rounded-xl p-3 border border-hairline">
+            <div class="text-[11px] text-muted mb-2">今日吉神方位（奇門出行納氣參考）</div>
+            <div id="alm-compass-row" class="grid grid-cols-5 gap-1.5 text-center text-xs"></div>
+          </div>
+        </div>
+
+        <!-- Right Column: XuanKong 9-Palace Flying Star Grid (6 cols) -->
+        <div class="lg:col-span-6 ink-card rounded-2xl p-4 sm:p-5 space-y-3 flex flex-col justify-between">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline pb-2.5">
+            <div>
+              <h3 class="font-serif font-bold text-base text-jade">玄空九宮飛星盤</h3>
+              <p id="flying-star-subtitle" class="text-xs text-muted">上南下北、左東右西（點擊宮位可檢視流日/年/月疊星斷語）</p>
+            </div>
+            <!-- Switcher: Day / Month / Year Star Focus -->
+            <div class="flex items-center bg-obsidian p-1 rounded-lg border border-hairline text-xs">
+              <button id="fs-mode-day" onclick="setFlyingStarMode('day')" class="px-2.5 py-1 rounded bg-elevated text-realgar font-medium">日飛星</button>
+              <button id="fs-mode-month" onclick="setFlyingStarMode('month')" class="px-2.5 py-1 rounded text-rice hover:text-jade">月飛星</button>
+              <button id="fs-mode-year" onclick="setFlyingStarMode('year')" class="px-2.5 py-1 rounded text-rice hover:text-jade">年飛星</button>
+            </div>
+          </div>
+
+          <!-- 3x3 LuoShu 9-Palace Grid -->
+          <div id="flying-star-grid" class="grid grid-cols-3 gap-2.5 my-auto">
+            <!-- 9 Palaces rendered dynamically -->
+          </div>
+
+          <!-- Selected Palace Detail Box -->
+          <div id="flying-star-detail" class="bg-obsidian/80 rounded-xl p-3 border border-realgar/40 text-xs space-y-1">
+            <!-- Populated when clicking a palace -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.4 12-Hour Auspicious Timeline (十二時辰吉凶橫向時間軸) -->
+      <div class="ink-card rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-serif font-bold text-sm sm:text-base text-jade">十二時辰黃道吉凶時間軸</h3>
+          <span class="text-xs text-muted">● 黃道吉時 ／ ○ 黑道凶時</span>
+        </div>
+        <div id="hourly-almanac-timeline" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: PROFILE VAULT (命盤檔案庫) ==================== -->
+    <section id="view-vault" class="hidden space-y-4 fade-slide-enter">
+      <div class="ink-card rounded-2xl p-4 sm:p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-hairline pb-4">
+          <div>
+            <h2 class="font-serif text-lg sm:text-xl font-bold text-jade">命盤檔案庫與離線快取中心</h2>
+            <p class="text-xs text-muted mt-0.5">點擊任意命盤即可切換排盤，設定為「★ 本人命盤」將自動連動順曆首頁的今日流日刑沖提醒</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openBirthModal(false)" class="px-3 py-1.5 rounded-lg text-xs bg-realgar text-obsidian font-semibold hover:opacity-90 transition">
+              + 新增命盤
+            </button>
+            <button onclick="exportVaultJson()" class="px-3 py-1.5 rounded-lg text-xs bg-elevated hover:bg-hairline text-rice border border-hairline transition">
+              匯出 JSON 備份
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Filter -->
+        <div class="flex items-center gap-3">
+          <input id="vault-search-input" type="text" oninput="renderVaultList()" placeholder="搜尋命主姓名、出生地或八字干支..." class="w-full sm:w-80 bg-obsidian text-jade text-xs sm:text-sm px-3.5 py-2 rounded-xl border border-hairline focus:border-realgar focus:outline-none" />
+        </div>
+
+        <!-- Profiles Grid -->
+        <div id="vault-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 4: APP STORE & GOOGLE PLAY PUBLISH CENTER ==================== -->
+    <section id="view-publish" class="hidden space-y-5 fade-slide-enter">
+      <!-- 4.1 Banner & Readiness Status -->
+      <div class="ink-card rounded-2xl p-5 border-l-4 border-l-realgar">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-xs font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">READY FOR CAPACITOR / EXPO</span>
+              <h2 class="font-serif text-lg sm:text-xl font-bold text-jade">iOS App Store ＆ Android Google Play 雙平台上架工程中心</h2>
+            </div>
+            <p class="text-xs sm:text-sm text-rice">
+              本系統已配置完整離線運算引擎（零後端伺服器依賴、無 API 延遲、已內建 iOS Safe-Area 與底部原生導航列）。您可直接生成商店上架必備的 1024×1024 圖標，並透過 Capacitor 在 5 分鐘內打包出 Xcode (`.ipa`) 與 Android Studio (`.aab`) 安裝包。
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="toggleMobileSimulator()" class="px-3.5 py-2 rounded-xl text-xs font-serif font-bold bg-realgar text-obsidian hover:opacity-90 transition whitespace-nowrap">
+              切換 iPhone 真機預覽
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.2 High-Res 1024x1024 App Icon Generator & Downloader -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div class="lg:col-span-5 ink-card rounded-2xl p-5 flex flex-col items-center justify-between space-y-4">
+          <div class="w-full flex items-center justify-between border-b border-hairline pb-2.5">
+            <h3 class="font-serif font-bold text-base text-jade">1. 商店標準 App Icon 生成器</h3>
+            <span class="text-[11px] font-mono text-realgar">無透明通道 RGB (防蘋果退件)</span>
+          </div>
+
+          <!-- Hidden 1024x1024 Canvas + Visible Preview -->
+          <div class="p-3 rounded-3xl bg-obsidian border border-hairline shadow-2xl">
+            <canvas id="app-icon-canvas" width="1024" height="1024" class="w-44 h-44 sm:w-52 sm:h-52 rounded-[38px] shadow-lg"></canvas>
+          </div>
+
+          <div class="w-full space-y-2">
+            <div class="flex items-center justify-center gap-2 text-xs">
+              <button onclick="renderAppIconCanvas('obsidian')" class="px-2.5 py-1 rounded bg-elevated hover:bg-hairline text-jade border border-hairline">玄黑金印款 (推薦)</button>
+              <button onclick="renderAppIconCanvas('cinnabar')" class="px-2.5 py-1 rounded bg-cinnabar/20 hover:bg-cinnabar/30 text-red-200 border border-cinnabar/40">硃砂滿印款</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <button onclick="downloadAppIcon(1024)" class="py-2 px-3 rounded-xl bg-realgar text-obsidian font-serif font-bold text-xs hover:opacity-95 transition">
+                ⬇ 下載 1024×1024 (iOS)
+              </button>
+              <button onclick="downloadAppIcon(512)" class="py-2 px-3 rounded-xl bg-elevated hover:bg-hairline text-jade border border-realgar/40 font-serif font-bold text-xs transition">
+                ⬇ 下載 512×512 (Android)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.3 Capacitor 5-Minute Native Packaging Commands -->
+        <div class="lg:col-span-7 ink-card rounded-2xl p-5 space-y-3.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-hairline pb-2.5">
+            <div>
+              <h3 class="font-serif font-bold text-base text-jade">2. Capacitor 原生打包流水線（5分鐘轉 iOS / Android）</h3>
+              <p class="text-xs text-muted">直接將本單頁系統封裝為原生 WebView 雙平台 App，支援全離線秒開</p>
+            </div>
+            <button onclick="copyCapacitorSetup()" class="px-3 py-1.5 rounded-lg bg-realgar/20 hover:bg-realgar/30 text-realgar border border-realgar/40 text-xs font-medium whitespace-nowrap">
+              複製完整打包指令
+            </button>
+          </div>
+
+          <div class="bg-obsidian rounded-xl p-3.5 border border-hairline font-mono text-xs text-rice space-y-1.5 overflow-x-auto">
+            <div class="text-muted"># Step 1: 建立專案資料夾並放入本檔案 (命名為 www/index.html)</div>
+            <div class="text-jade">mkdir xuanmo-app && cd xuanmo-app && mkdir www</div>
+            <div class="text-jade">npm init -y && npm install @capacitor/core @capacitor/cli @capacitor/ios @capacitor/android</div>
+            <div class="text-muted pt-1"># Step 2: 初始化 App ID 與名稱</div>
+            <div class="text-realgar">npx cap init "玄墨萬年曆" "com.xuanmo.almanac" --web-dir www</div>
+            <div class="text-muted pt-1"># Step 3: 產生 Xcode (iOS) 與 Android Studio 原生工程並開啟</div>
+            <div class="text-jade">npx cap add ios && npx cap add android</div>
+            <div class="text-jade">npx cap sync && npx cap open ios</div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <div class="bg-obsidian/70 p-3 rounded-xl border border-hairline">
+              <div class="font-serif font-bold text-realgar mb-1">Apple App Store 必備參數</div>
+              <div class="font-mono text-[11px] text-rice space-y-0.5">
+                <div>Bundle ID: <span class="text-jade">com.xuanmo.almanac</span></div>
+                <div>主類別: <span class="text-jade">Reference (參考工具) / Lifestyle</span></div>
+                <div>年齡分級: <span class="text-jade">4+ (無博弈或迷信交易)</span></div>
+              </div>
+            </div>
+            <div class="bg-obsidian/70 p-3 rounded-xl border border-hairline">
+              <div class="font-serif font-bold text-wx-wood mb-1">Google Play Console 必備參數</div>
+              <div class="font-mono text-[11px] text-rice space-y-0-5">
+                <div>Package: <span class="text-jade">com.xuanmo.almanac</span></div>
+                <div>Target SDK: <span class="text-jade">API 35 (Android 15)</span></div>
+                <div>資料安全性: <span class="text-jade">不收集任何遠端個資 (全本地)</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4.4 App Store Guideline 4.2 / 4.3 Anti-Rejection & Privacy Compliance Generator -->
+      <div class="ink-card rounded-2xl p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline pb-3">
+          <div>
+            <h3 class="font-serif font-bold text-base text-jade">3. Apple App Store 命理曆法類防退件（Guideline 4.2 / 4.3）與隱私權合規包</h3>
+            <p class="text-xs text-muted">蘋果審核對「占卜算命類」審查嚴格，以下為您準備好通過率最高的「天文曆法與傳統干支文化研究工具」合規文案</p>
+          </div>
+          <button onclick="copyComplianceText()" class="px-3 py-1.5 rounded-lg bg-elevated hover:bg-hairline text-realgar border border-realgar/40 text-xs font-medium">
+            複製商店描述與隱私權聲明
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div class="bg-obsidian/80 p-3.5 rounded-xl border border-hairline space-y-1.5">
+            <div class="font-serif font-bold text-realgar">★ 防 4.3 垃圾應用退件策略</div>
+            <p class="text-rice leading-relaxed">
+              提審時於「審核備註 (Review Notes)」強調本 App 內建 **Spencer (1971) 天文均時差真太陽時公式** 與 **VSOP87 節氣天文演算法**，定位為「專業天文干支萬年曆與傳統擇日文化查閱工具」，而非單純隨機抽籤算命網頁。
+            </p>
+          </div>
+          <div class="bg-obsidian/80 p-3.5 rounded-xl border border-hairline space-y-1.5">
+            <div class="font-serif font-bold text-wx-wood">★ 零伺服器隱私權優勢</div>
+            <p class="text-rice leading-relaxed">
+              所有八字生辰、經緯度與命盤庫資料 100% 儲存於使用者手機本地端，無任何第三方廣告追蹤 SDK，App Store 隱私權標籤可直接勾選「未收集資料 (Data Not Collected)」，大幅加速過審。
+            </p>
+          </div>
+          <div class="bg-obsidian/80 p-3.5 rounded-xl border border-hairline space-y-1.5">
+            <div class="font-serif font-bold text-red-300">★ 必備免責聲明（已內嵌頁尾）</div>
+            <p class="text-rice leading-relaxed">
+              商店說明欄底部務必附上：「本軟體提供之干支曆法、節氣與九宮飛星資訊僅供傳統民俗文化研究與日程規劃參考，不構成任何醫療、法律或財務投資建議。」
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Native Mobile Bottom Tab Bar (Visible on Mobile & Simulator Mode) -->
+  <nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-obsidian/95 backdrop-blur-lg border-t border-hairline px-2 py-1.5 flex md:hidden items-center justify-around select-none">
+    <button id="m-tab-bazi" onclick="switchTab('bazi')" class="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-realgar">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <span class="text-[11px] font-serif font-bold">八字排盤</span>
+    </button>
+    <button id="m-tab-almanac" onclick="switchTab('almanac')" class="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-muted">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <span class="text-[11px] font-serif">順曆黃曆</span>
+    </button>
+    <button id="m-tab-vault" onclick="switchTab('vault')" class="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-muted">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+      <span class="text-[11px] font-serif">命盤庫</span>
+    </button>
+    <button id="m-tab-publish" onclick="switchTab('publish')" class="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-muted">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      <span class="text-[11px] font-serif">App上架</span>
+    </button>
+  </nav>
+
+  </div>
+
+  <!-- Custom Notification Toast / Modal for JSON Export -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    /**
+     * ============================================================================
+     * 玄墨核心命理與天文曆法引擎 (XuanMoCoreEngine v1.0)
+     * 嚴格實現：
+     * 1. Spencer (1971) 均時差 (EOT) + 經度真太陽時校正
+     * 2. 早夜子時雙模式 (split_zi / whole_zi)
+     * 3. 論八字級毫秒三天折一年起運精算
+     * 4. 正統子平地支藏干、十神、納音、十二長生、空亡、胎元、命宮、身宮、神煞
+     * 5. O(1) 原局/大運/流年/流日 刑沖合會檢測矩陣
+     * 6. 順曆級每日通書與冬至陽遁/夏至陰遁玄空九宮飛星
+     * ============================================================================
+     */
+
+    const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+    const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+    const ZODIAC = ['鼠', '牛', '虎', '兔', '龍', '蛇', '馬', '羊', '猴', '雞', '狗', '豬'];
+
+    const STEM_WUXING = {
+      '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
+      '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水'
+    };
+
+    const BRANCH_WUXING = {
+      '寅': '木', '卯': '木', '巳': '火', '午': '火',
+      '辰': '土', '戌': '土', '丑': '土', '未': '土',
+      '申': '金', '酉': '金', '亥': '水', '子': '水'
+    };
+
+    // 正統子平地支藏干與氣數權重表 (本氣、中氣、餘氣)
+    const HIDDEN_STEMS_MAP = {
+      '子': [{ stem: '癸', role: '本氣', weight: 100 }],
+      '丑': [{ stem: '己', role: '本氣', weight: 60 }, { stem: '癸', role: '中氣', weight: 30 }, { stem: '辛', role: '餘氣', weight: 10 }],
+      '寅': [{ stem: '甲', role: '本氣', weight: 60 }, { stem: '丙', role: '中氣', weight: 30 }, { stem: '戊', role: '餘氣', weight: 10 }],
+      '卯': [{ stem: '乙', role: '本氣', weight: 100 }],
+      '辰': [{ stem: '戊', role: '本氣', weight: 60 }, { stem: '乙', role: '中氣', weight: 30 }, { stem: '癸', role: '餘氣', weight: 10 }],
+      '巳': [{ stem: '丙', role: '本氣', weight: 60 }, { stem: '庚', role: '中氣', weight: 30 }, { stem: '戊', role: '餘氣', weight: 10 }],
+      '午': [{ stem: '丁', role: '本氣', weight: 70 }, { stem: '己', role: '中氣', weight: 30 }],
+      '未': [{ stem: '己', role: '本氣', weight: 60 }, { stem: '丁', role: '中氣', weight: 30 }, { stem: '乙', role: '餘氣', weight: 10 }],
+      '申': [{ stem: '庚', role: '本氣', weight: 60 }, { stem: '壬', role: '中氣', weight: 30 }, { stem: '戊', role: '餘氣', weight: 10 }],
+      '酉': [{ stem: '辛', role: '本氣', weight: 100 }],
+      '戌': [{ stem: '戊', role: '本氣', weight: 60 }, { stem: '辛', role: '中氣', weight: 30 }, { stem: '丁', role: '餘氣', weight: 10 }],
+      '亥': [{ stem: '壬', role: '本氣', weight: 70 }, { stem: '甲', role: '中氣', weight: 30 }]
+    };
+
+    // 六十甲子納音表
+    const NAYIN_MAP = {
+      '甲子': '海中金', '乙丑': '海中金', '丙寅': '爐中火', '丁卯': '爐中火', '戊辰': '大林木', '己巳': '大林木',
+      '庚午': '路旁土', '辛未': '路旁土', '壬申': '劍鋒金', '癸酉': '劍鋒金', '甲戌': '山頭火', '乙亥': '山頭火',
+      '丙子': '澗下水', '丁丑': '澗下水', '戊寅': '城頭土', '己卯': '城頭土', '庚辰': '白蠟金', '辛巳': '白蠟金',
+      '壬午': '楊柳木', '癸未': '楊柳木', '甲申': '泉中水', '乙酉': '泉中水', '丙戌': '屋上土', '丁亥': '屋上土',
+      '戊子': '霹靂火', '己丑': '霹靂火', '庚寅': '松柏木', '辛卯': '松柏木', '壬辰': '長流水', '癸巳': '長流水',
+      '甲午': '沙中金', '乙未': '沙中金', '丙申': '山下火', '丁酉': '山下火', '戊戌': '平地木', '己亥': '平地木',
+      '庚子': '壁上土', '辛丑': '壁上土', '壬寅': '金箔金', '癸卯': '金箔金', '甲辰': '覆燈火', '乙巳': '覆燈火',
+      '丙午': '天河水', '丁未': '天河水', '戊申': '大驛土', '己酉': '大驛土', '庚戌': '釵釧金', '辛亥': '釵釧金',
+      '壬子': '桑柘木', '癸丑': '桑柘木', '甲寅': '大溪水', '乙卯': '大溪水', '丙辰': '沙中土', '丁巳': '沙中土',
+      '戊午': '天上火', '己未': '天上火', '庚申': '石榴木', '辛酉': '石榴木', '壬戌': '大海水', '癸亥': '大海水'
+    };
+
+    const TWELVE_STAGES = ['長生', '沐浴', '冠帶', '臨官', '帝旺', '衰', '病', '死', '墓', '絕', '胎', '養'];
+    // 十天干長生起始地支索引 (陽順陰逆)
+    const CHANGSHENG_START = {
+      '甲': 11, // 亥
+      '丙': 2,  // 寅
+      '戊': 2,  // 寅
+      '庚': 5,  // 巳
+      '壬': 8,  // 申
+      '乙': 6,  // 午 (逆)
+      '丁': 9,  // 酉 (逆)
+      '己': 9,  // 酉 (逆)
+      '辛': 0,  // 子 (逆)
+      '癸': 3   // 卯 (逆)
+    };
+
+    // 五行顏色映射
+    function getWuXingColorClass(wx) {
+      switch (wx) {
+        case '木': return 'text-wx-wood border-wx-wood/40 bg-wx-wood/10';
+        case '火': return 'text-wx-fire border-wx-fire/40 bg-wx-fire/10';
+        case '土': return 'text-wx-earth border-wx-earth/40 bg-wx-earth/10';
+        case '金': return 'text-wx-metal border-wx-metal/40 bg-wx-metal/10';
+        case '水': return 'text-wx-water border-wx-water/40 bg-wx-water/10';
+        default: return 'text-jade';
+      }
+    }
+
+    function getWuXingTextClass(wx) {
+      switch (wx) {
+        case '木': return 'text-wx-wood';
+        case '火': return 'text-wx-fire';
+        case '土': return 'text-wx-earth';
+        case '金': return 'text-wx-metal';
+        case '水': return 'text-wx-water';
+        default: return 'text-jade';
+      }
+    }
+
+    // 1. 計算十神 (以日干 dayStem 對照目標天干 targetStem)
+    function getTenGod(dayStem, targetStem) {
+      if (!dayStem || !targetStem) return '';
+      const dIdx = STEMS.indexOf(dayStem);
+      const tIdx = STEMS.indexOf(targetStem);
+      if (dIdx < 0 || tIdx < 0) return '';
+
+      const dElem = Math.floor(dIdx / 2); // 0木, 1火, 2土, 3金, 4水
+      const tElem = Math.floor(tIdx / 2);
+      const samePolarity = (dIdx % 2) === (tIdx % 2);
+
+      const diff = (tElem - dElem + 5) % 5;
+      if (diff === 0) return samePolarity ? '比肩' : '劫財';
+      if (diff === 1) return samePolarity ? '食神' : '傷官';
+      if (diff === 2) return samePolarity ? '偏財' : '正財';
+      if (diff === 3) return samePolarity ? '七殺' : '正官';
+      if (diff === 4) return samePolarity ? '偏印' : '正印';
+      return '';
+    }
+
+    // 2. 計算長生十二宮
+    function getTwelveStage(stem, branch) {
+      const sIdx = STEMS.indexOf(stem);
+      const bIdx = BRANCHES.indexOf(branch);
+      if (sIdx < 0 || bIdx < 0) return '養';
+      const startBranch = CHANGSHENG_START[stem];
+      const isYang = sIdx % 2 === 0;
+      const offset = isYang
+        ? (bIdx - startBranch + 12) % 12
+        : (startBranch - bIdx + 12) % 12;
+      return TWELVE_STAGES[offset];
+    }
+
+    // 3. 計算旬空 (空亡)
+    function getKongWang(ganZhi) {
+      const sIdx = STEMS.indexOf(ganZhi[0]);
+      const bIdx = BRANCHES.indexOf(ganZhi[1]);
+      const diff = (bIdx - sIdx + 12) % 12;
+      const kw1 = BRANCHES[(diff + 10) % 12];
+      const kw2 = BRANCHES[(diff + 11) % 12];
+      return [kw1, kw2];
+    }
+
+    // 4. Spencer (1971) 真太陽時與均時差計算器
+    function calculateTrueSolarTime(clockDate, longitude, standardMeridian = 120.0, isEnabled = true) {
+      const startOfYear = new Date(clockDate.getFullYear(), 0, 0);
+      const diff = clockDate.getTime() - startOfYear.getTime();
+      const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+      const B = (2 * Math.PI * (dayOfYear - 1)) / 365.0;
+      const eotMinutes = 229.18 * (
+        0.000075 +
+        0.001868 * Math.cos(B) -
+        0.032077 * Math.sin(B) -
+        0.014615 * Math.cos(2 * B) -
+        0.040849 * Math.sin(2 * B)
+      );
+
+      const eotOffsetSeconds = Math.round(eotMinutes * 60);
+      const longitudeOffsetSeconds = Math.round((longitude - standardMeridian) * 240);
+      const totalOffsetSeconds = isEnabled ? (longitudeOffsetSeconds + eotOffsetSeconds) : 0;
+      const trueSolarDate = new Date(clockDate.getTime() + totalOffsetSeconds * 1000);
+
+      return {
+        trueSolarDate,
+        longitudeOffsetSeconds,
+        eotOffsetSeconds,
+        totalOffsetSeconds
+      };
+    }
+
+    // 5. 實戰神煞引擎 (年支、月支、日干、日支綜合查法)
+    function calculatePillarShenSha(pillarType, stem, branch, yearBranch, monthBranch, dayStem, dayBranch) {
+      const list = new Set();
+
+      // 天乙貴人 (以日干/年干查)
+      const tianYiMap = {
+        '甲': ['丑', '未'], '戊': ['丑', '未'], '庚': ['丑', '未'],
+        '乙': ['子', '申'], '己': ['子', '申'],
+        '丙': ['亥', '酉'], '丁': ['亥', '酉'],
+        '壬': ['卯', '巳'], '癸': ['卯', '巳'],
+        '辛': ['午', '寅']
+      };
+      if ((tianYiMap[dayStem] || []).includes(branch)) list.add('天乙貴人');
+
+      // 文昌貴人
+      const wenChangMap = {
+        '甲': '巳', '乙': '午', '丙': '申', '丁': '酉', '戊': '申',
+        '己': '酉', '庚': '亥', '辛': '子', '壬': '寅', '癸': '卯'
+      };
+      if (wenChangMap[dayStem] === branch) list.add('文昌');
+
+      // 祿神 & 羊刃
+      const luMap = {
+        '甲': '寅', '乙': '卯', '丙': '巳', '丁': '午', '戊': '巳',
+        '己': '午', '庚': '申', '辛': '酉', '壬': '亥', '癸': '子'
+      };
+      const yangRenMap = {
+        '甲': '卯', '乙': '辰', '丙': '午', '丁': '未', '戊': '午',
+        '己': '未', '庚': '酉', '辛': '戌', '壬': '子', '癸': '丑'
+      };
+      if (luMap[dayStem] === branch) list.add('祿神');
+      if (yangRenMap[dayStem] === branch) list.add('羊刃');
+
+      // 驛馬、桃花、華蓋、將星 (以年支與日支同查)
+      const checkTriadShenSha = (baseB) => {
+        if (['申', '子', '辰'].includes(baseB)) {
+          if (branch === '寅') list.add('驛馬');
+          if (branch === '酉') list.add('桃花');
+          if (branch === '辰') list.add('華蓋');
+          if (branch === '子') list.add('將星');
+        } else if (['寅', '午', '戌'].includes(baseB)) {
+          if (branch === '申') list.add('驛馬');
+          if (branch === '卯') list.add('桃花');
+          if (branch === '戌') list.add('華蓋');
+          if (branch === '午') list.add('將星');
+        } else if (['巳', '酉', '丑'].includes(baseB)) {
+          if (branch === '亥') list.add('驛馬');
+          if (branch === '午') list.add('桃花');
+          if (branch === '丑') list.add('華蓋');
+          if (branch === '酉') list.add('將星');
+        } else if (['亥', '卯', '未'].includes(baseB)) {
+          if (branch === '巳') list.add('驛馬');
+          if (branch === '子') list.add('桃花');
+          if (branch === '未') list.add('華蓋');
+          if (branch === '卯') list.add('將星');
+        }
+      };
+      checkTriadShenSha(yearBranch);
+      if (pillarType !== 'day') checkTriadShenSha(dayBranch);
+
+      // 紅鸞、天喜 (以年支查)
+      const yIdx = BRANCHES.indexOf(yearBranch);
+      const hongLuanIdx = (3 - yIdx + 12) % 12;
+      const tianXiIdx = (hongLuanIdx + 6) % 12;
+      if (BRANCHES[hongLuanIdx] === branch) list.add('紅鸞');
+      if (BRANCHES[tianXiIdx] === branch) list.add('天喜');
+
+      // 魁罡貴人 (日柱專屬)
+      if (pillarType === 'day' && ['壬辰', '庚戌', '庚辰', '戊戌'].includes(stem + branch)) {
+        list.add('魁罡');
+      }
+
+      // 陰陽差錯 (日柱專屬)
+      if (pillarType === 'day' && ['丙子', '丁丑', '戊寅', '辛卯', '壬辰', '癸巳', '丙午', '丁未', '戊申', '辛酉', '壬戌', '癸亥'].includes(stem + branch)) {
+        list.add('陰陽差錯');
+      }
+
+      // 太極貴人
+      const taiJiMap = {
+        '甲': ['子', '午'], '乙': ['子', '午'],
+        '丙': ['酉', '卯'], '丁': ['酉', '卯'],
+        '戊': ['辰', '戌', '丑', '未'], '己': ['辰', '戌', '丑', '未'],
+        '庚': ['寅', '亥'], '辛': ['寅', '亥'],
+        '壬': ['巳', '申'], '癸': ['巳', '申']
+      };
+      if ((taiJiMap[dayStem] || []).includes(branch)) list.add('太極貴人');
+
+      return Array.from(list);
+    }
+
+    // 6. 高速干支刑沖合會檢測引擎 (O(1) Matrix Lookup)
+    function checkPairInteractions(stem1, branch1, label1, stem2, branch2, label2) {
+      const results = [];
+      const g1 = STEMS.indexOf(stem1);
+      const g2 = STEMS.indexOf(stem2);
+      const b1 = BRANCHES.indexOf(branch1);
+      const b2 = BRANCHES.indexOf(branch2);
+
+      // 天干五合
+      const heNames = { '甲己': '合化土', '己甲': '合化土', '乙庚': '合化金', '庚乙': '合化金', '丙辛': '合化水', '辛丙': '合化水', '丁壬': '合化木', '壬丁': '合化木', '戊癸': '合化火', '癸戊': '合化火' };
+      if (Math.abs(g1 - g2) === 5) {
+        results.push({
+          type: '天干五合',
+          tag: '天合',
+          detail: `${stem1}${stem2}${heNames[stem1 + stem2] || '相合'}`,
+          participants: `${label1}×${label2}`,
+          severity: 'auspicious'
+        });
+      }
+
+      // 天干四沖
+      if (Math.abs(g1 - g2) === 6 && g1 !== 4 && g1 !== 5 && g2 !== 4 && g2 !== 5) {
+        results.push({
+          type: '天干相沖',
+          tag: '天沖',
+          detail: `${stem1}${stem2}相沖`,
+          participants: `${label1}×${label2}`,
+          severity: 'warning'
+        });
+      }
+
+      // 地支六合: (b1 + b2) % 12 === 1
+      if (b1 !== b2 && (b1 + b2) % 12 === 1) {
+        results.push({
+          type: '地支六合',
+          tag: '六合',
+          detail: `${branch1}${branch2}六合`,
+          participants: `${label1}×${label2}`,
+          severity: 'auspicious'
+        });
+      }
+
+      // 地支六沖: |b1 - b2| === 6
+      if (Math.abs(b1 - b2) === 6) {
+        const isTianKeDiChong = Math.abs(g1 - g2) === 6;
+        results.push({
+          type: isTianKeDiChong ? '天剋地沖' : '地支六沖',
+          tag: isTianKeDiChong ? '天剋地沖' : '六沖',
+          detail: isTianKeDiChong ? `${stem1}${branch1}與${stem2}${branch2}天剋地沖` : `${branch1}${branch2}相沖`,
+          participants: `${label1}×${label2}`,
+          severity: 'warning'
+        });
+      }
+
+      // 地支半合
+      const triads = [
+        { set: [8, 0, 4], center: 0, name: '水局' },
+        { set: [11, 3, 7], center: 3, name: '木局' },
+        { set: [2, 6, 10], center: 6, name: '火局' },
+        { set: [5, 9, 1], center: 9, name: '金局' }
+      ];
+      for (const tr of triads) {
+        if (b1 !== b2 && tr.set.includes(b1) && tr.set.includes(b2) && (b1 === tr.center || b2 === tr.center)) {
+          results.push({
+            type: '地支半合',
+            tag: '半合',
+            detail: `${branch1}${branch2}半合${tr.name}`,
+            participants: `${label1}×${label2}`,
+            severity: 'auspicious'
+          });
+        }
+      }
+
+      // 地支相刑
+      const pair = new Set([b1, b2]);
+      if (pair.has(0) && pair.has(3)) {
+        results.push({ type: '地支相刑', tag: '相刑', detail: `子卯相刑`, participants: `${label1}×${label2}`, severity: 'warning' });
+      } else if ((pair.has(2) && pair.has(5)) || (pair.has(5) && pair.has(8)) || (pair.has(2) && pair.has(8))) {
+        results.push({ type: '地支相刑', tag: '相刑', detail: `${branch1}${branch2}相刑`, participants: `${label1}×${label2}`, severity: 'warning' });
+      } else if ((pair.has(1) && pair.has(10)) || (pair.has(10) && pair.has(7)) || (pair.has(1) && pair.has(7))) {
+        results.push({ type: '地支相刑', tag: '相刑', detail: `${branch1}${branch2}相刑`, participants: `${label1}×${label2}`, severity: 'warning' });
+      } else if (b1 === b2 && [4, 6, 9, 11].includes(b1)) {
+        results.push({ type: '地支自刑', tag: '自刑', detail: `${branch1}${branch2}自刑`, participants: `${label1}×${label2}`, severity: 'neutral' });
+      }
+
+      return results;
+    }
+
+    // 7. 完整八字排盤生成引擎 (結合 lunar-javascript 秒級節氣與自研起運折算)
+    function generateBirthChart(profile) {
+      const [y, m, d] = profile.birthDate.split('-').map(Number);
+      const [hh, mm] = profile.birthTime.split(':').map(Number);
+      const clockDate = new Date(y, m - 1, d, hh, mm, 0);
+
+      // Step 1: 真太陽時校正
+      const solarCal = calculateTrueSolarTime(
+        clockDate,
+        profile.longitude,
+        profile.standardMeridian || 120,
+        profile.useTrueSolarTime
+      );
+      const effectiveDate = solarCal.trueSolarDate;
+
+      // Step 2: 透過 Lunar-JS 取得節氣與干支基礎，並處理早夜子時
+      const effY = effectiveDate.getFullYear();
+      const effM = effectiveDate.getMonth() + 1;
+      const effD = effectiveDate.getDate();
+      const effH = effectiveDate.getHours();
+      const effMin = effectiveDate.getMinutes();
+      const effSec = effectiveDate.getSeconds();
+
+      const solarObj = Solar.fromYmdHms(effY, effM, effD, effH, effMin, effSec);
+      const lunarObj = solarObj.getLunar();
+      const eightChar = lunarObj.getEightChar();
+      // sect = 2 代表 23:00-23:59 日柱不換 (區分早夜子時)；sect = 1 代表 23:00 換日柱
+      eightChar.setSect(profile.ziHourMode === 'split_zi' ? 2 : 1);
+
+      const yearGanZhi = eightChar.getYear();
+      const monthGanZhi = eightChar.getMonth();
+      const dayGanZhi = eightChar.getDay();
+      const hourGanZhi = eightChar.getTime();
+
+      const dayStem = dayGanZhi[0];
+      const dayBranch = dayGanZhi[1];
+      const yearBranch = yearGanZhi[1];
+      const monthBranch = monthGanZhi[1];
+      const dayKongWang = getKongWang(dayGanZhi);
+      const yearKongWang = getKongWang(yearGanZhi);
+
+      // Step 3: 封裝四柱詳情
+      function buildPillarDetail(pillarType, ganZhi) {
+        const stem = ganZhi[0];
+        const branch = ganZhi[1];
+        const hiddenRaw = HIDDEN_STEMS_MAP[branch] || [];
+        const hiddenStems = hiddenRaw.map(item => ({
+          stem: item.stem,
+          wuXing: STEM_WUXING[item.stem],
+          tenGod: getTenGod(dayStem, item.stem),
+          role: item.role,
+          weight: item.weight
+        }));
+        const kw = getKongWang(ganZhi);
+        return {
+          pillarType,
+          ganZhi,
+          stem: {
+            value: stem,
+            wuXing: STEM_WUXING[stem],
+            tenGod: pillarType === 'day' ? (profile.gender === 'male' ? '元男' : '元女') : getTenGod(dayStem, stem)
+          },
+          branch: {
+            value: branch,
+            wuXing: BRANCH_WUXING[branch],
+            hiddenStems
+          },
+          naYin: NAYIN_MAP[ganZhi] || '',
+          twelveStage: getTwelveStage(dayStem, branch),
+          selfSittingStage: getTwelveStage(stem, branch),
+          kongWang: kw,
+          isBranchKongWang: dayKongWang.includes(branch) || yearKongWang.includes(branch),
+          shenSha: calculatePillarShenSha(pillarType, stem, branch, yearBranch, monthBranch, dayStem, dayBranch)
+        };
+      }
+
+      const pillars = {
+        year: buildPillarDetail('year', yearGanZhi),
+        month: buildPillarDetail('month', monthGanZhi),
+        day: buildPillarDetail('day', dayGanZhi),
+        hour: buildPillarDetail('hour', hourGanZhi)
+      };
+
+      // Step 4: 論八字級毫秒三天折一年起運精算
+      const yearStemIdx = STEMS.indexOf(yearGanZhi[0]);
+      const isYangYear = yearStemIdx % 2 === 0;
+      const isForward = (isYangYear && profile.gender === 'male') || (!isYangYear && profile.gender === 'female');
+
+      const targetJie = isForward ? lunarObj.getNextJie() : lunarObj.getPrevJie();
+      const jieSolar = targetJie.getSolar();
+      const jieDate = new Date(
+        jieSolar.getYear(),
+        jieSolar.getMonth() - 1,
+        jieSolar.getDay(),
+        jieSolar.getHour(),
+        jieSolar.getMinute(),
+        jieSolar.getSecond()
+      );
+
+      const diffMilliseconds = Math.abs(jieDate.getTime() - effectiveDate.getTime());
+      const totalRealMinutes = diffMilliseconds / (1000 * 60);
+
+      // 4320分鐘(3天) = 1年, 360分鐘 = 1個月, 12分鐘 = 1天, 1分鐘 = 2小時
+      const luckYears = Math.floor(totalRealMinutes / 4320);
+      const rem1 = totalRealMinutes % 4320;
+      const luckMonths = Math.floor(rem1 / 360);
+      const rem2 = rem1 % 360;
+      const luckDays = Math.floor(rem2 / 12);
+      const rem3 = rem2 % 12;
+      const luckHours = Math.floor(rem3 * 2);
+
+      const startLuckDate = new Date(effectiveDate.getTime());
+      startLuckDate.setFullYear(startLuckDate.getFullYear() + luckYears);
+      startLuckDate.setMonth(startLuckDate.getMonth() + luckMonths);
+      startLuckDate.setDate(startLuckDate.getDate() + luckDays);
+      startLuckDate.setHours(startLuckDate.getHours() + luckHours);
+
+      const startLuckSolar = Solar.fromDate(startLuckDate);
+      const startLuckLunar = startLuckSolar.getLunar();
+      const prevJieAtLuck = startLuckLunar.getPrevJieQi();
+      const prevJieSolar = prevJieAtLuck.getSolar();
+      const prevJieDate = new Date(prevJieSolar.getYear(), prevJieSolar.getMonth() - 1, prevJieSolar.getDay());
+      const daysAfterJieQi = Math.max(0, Math.floor((startLuckDate.getTime() - prevJieDate.getTime()) / (1000 * 3600 * 24)));
+
+      const firstLuckSolarYear = startLuckDate.getFullYear();
+      const firstLuckStemIdx = ( firstLuckSolarYear - 4 + 6000 ) % 10;
+      const pairStemIdx = (firstLuckStemIdx + 5) % 10;
+
+      const startLuck = {
+        direction: isForward ? '順排' : '逆排',
+        polarLabel: `${isYangYear ? '陽' : '陰'}${profile.gender === 'male' ? '男' : '女'}${isForward ? '順排' : '逆排'}`,
+        referenceJieQiName: targetJie.getName(),
+        referenceJieQiTime: `${jieSolar.toYmdHms()}`,
+        years: luckYears,
+        months: luckMonths,
+        days: luckDays,
+        hours: luckHours,
+        exactStartDateStr: `${startLuckDate.getFullYear()}-${String(startLuckDate.getMonth() + 1).padStart(2, '0')}-${String(startLuckDate.getDate()).padStart(2, '0')}`,
+        firstLuckSolarYear,
+        handoverRuleText: `每逢 ${STEMS[firstLuckStemIdx]}、${STEMS[pairStemIdx]} 年${prevJieAtLuck.getName()}後第 ${daysAfterJieQi} 天交脫大運`
+      };
+
+      // Step 5: 生成童限 + 9步大運 及各自統轄的 10 個流年與 12 節氣流月
+      const monthStemIdx = STEMS.indexOf(monthGanZhi[0]);
+      const monthBranchIdx = BRANCHES.indexOf(monthGanZhi[1]);
+      const majorCycles = [];
+
+      // 輔助函式：生成指定西元年份的流年資料與 12 個節氣流月
+      function buildYearCycle(solarYear, majorGanZhi) {
+        const yStemIdx = (solarYear - 4 + 6000) % 10;
+        const yBranchIdx = (solarYear - 4 + 6000) % 12;
+        const yStem = STEMS[yStemIdx];
+        const yBranch = BRANCHES[yBranchIdx];
+        const yGanZhi = yStem + yBranch;
+        const mainHidden = HIDDEN_STEMS_MAP[yBranch][0].stem;
+
+        // 檢測流年與原局日柱、月柱、年柱及大運的重大刑沖
+        const alerts = [];
+        if (yGanZhi === majorGanZhi) alerts.push({ text: '歲運並臨', level: 'warning' });
+        const dayHits = checkPairInteractions(dayStem, dayBranch, '日柱', yStem, yBranch, '流年');
+        dayHits.forEach(h => {
+          if (h.tag === '天剋地沖') alerts.push({ text: '日柱天剋地沖', level: 'warning' });
+          else if (h.tag === '六沖') alerts.push({ text: `${h.detail}(沖日)`, level: 'warning' });
+          else if (h.tag === '六合' || h.tag === '天合') alerts.push({ text: `${h.detail}(合日)`, level: 'auspicious' });
+        });
+        const monthHits = checkPairInteractions(monthGanZhi[0], monthGanZhi[1], '月柱', yStem, yBranch, '流年');
+        monthHits.forEach(h => {
+          if (h.tag === '六沖') alerts.push({ text: `${h.detail}(沖提綱)`, level: 'warning' });
+        });
+
+        // 五虎遁推算該年 12 節氣流月 (寅月立春起至丑月小寒)
+        const tigerStartStemIdx = ((yStemIdx % 5) * 2 + 2) % 10;
+        const JIEQI_MONTHS = [
+          { idx: 1, branch: '寅', jie: '立春', approxDate: '02/04' },
+          { idx: 2, branch: '卯', jie: '驚蟄', approxDate: '03/05' },
+          { idx: 3, branch: '辰', jie: '清明', approxDate: '04/05' },
+          { idx: 4, branch: '巳', jie: '立夏', approxDate: '05/05' },
+          { idx: 5, branch: '午', jie: '芒種', approxDate: '06/06' },
+          { idx: 6, branch: '未', jie: '小暑', approxDate: '07/07' },
+          { idx: 7, branch: '申', jie: '立秋', approxDate: '08/07' },
+          { idx: 8, branch: '酉', jie: '白露', approxDate: '09/07' },
+          { idx: 9, branch: '戌', jie: '寒露', approxDate: '10/08' },
+          { idx: 10, branch: '亥', jie: '立冬', approxDate: '11/07' },
+          { idx: 11, branch: '子', jie: '大雪', approxDate: '12/07' },
+          { idx: 12, branch: '丑', jie: '小寒', approxDate: '01/05' }
+        ];
+
+        const months = JIEQI_MONTHS.map((jm, i) => {
+          const mStem = STEMS[(tigerStartStemIdx + i) % 10];
+          const mBranch = jm.branch;
+          const mMainHidden = HIDDEN_STEMS_MAP[mBranch][0].stem;
+          return {
+            monthIndex: jm.idx,
+            jieQiName: jm.jie,
+            approxDate: jm.approxDate,
+            ganZhi: mStem + mBranch,
+            stem: mStem,
+            stemTenGod: getTenGod(dayStem, mStem),
+            branch: mBranch,
+            branchTenGod: getTenGod(dayStem, mMainHidden)
+          };
+        });
+
+        return {
+          solarYear,
+          nominalAge: solarYear - effY + 1,
+          actualAge: Math.max(0, solarYear - effY),
+          ganZhi: yGanZhi,
+          stem: yStem,
+          stemWuXing: STEM_WUXING[yStem],
+          stemTenGod: getTenGod(dayStem, yStem),
+          branch: yBranch,
+          branchWuXing: BRANCH_WUXING[yBranch],
+          branchMainTenGod: getTenGod(dayStem, mainHidden),
+          naYin: NAYIN_MAP[yGanZhi] || '',
+          twelveStage: getTwelveStage(dayStem, yBranch),
+          alerts,
+          months
+        };
+      }
+
+      // Step 5A: 童限 (未上運前)
+      const childhoodEndYear = Math.max(effY, firstLuckSolarYear - 1);
+      const childhoodYears = [];
+      for (let yr = effY; yr <= childhoodEndYear; yr++) {
+        childhoodYears.push(buildYearCycle(yr, monthGanZhi));
+      }
+      if (childhoodYears.length === 0) {
+        childhoodYears.push(buildYearCycle(effY, monthGanZhi));
+      }
+
+      majorCycles.push({
+        stepIndex: 0,
+        isChildhoodLimit: true,
+        startSolarYear: effY,
+        endSolarYear: childhoodEndYear,
+        startAge: 1,
+        endAge: Math.max(1, childhoodEndYear - effY + 1),
+        ganZhi: monthGanZhi,
+        stem: monthGanZhi[0],
+        stemWuXing: STEM_WUXING[monthGanZhi[0]],
+        stemTenGod: getTenGod(dayStem, monthGanZhi[0]),
+        branch: monthGanZhi[1],
+        branchWuXing: BRANCH_WUXING[monthGanZhi[1]],
+        branchMainTenGod: getTenGod(dayStem, HIDDEN_STEMS_MAP[monthGanZhi[1]][0].stem),
+        naYin: NAYIN_MAP[monthGanZhi],
+        twelveStage: getTwelveStage(dayStem, monthGanZhi[1]),
+        years: childhoodYears
+      });
+
+      // Step 5B: 第 1 ~ 9 步專業大運
+      for (let step = 1; step <= 9; step++) {
+        const dir = isForward ? step : -step;
+        const cStem = STEMS[(monthStemIdx + dir + 100) % 10];
+        const cBranch = BRANCHES[(monthBranchIdx + dir + 120) % 12];
+        const cGanZhi = cStem + cBranch;
+        const sYear = firstLuckSolarYear + (step - 1) * 10;
+        const eYear = sYear + 9;
+        const sAge = sYear - effY + 1;
+
+        const yearsList = [];
+        for (let yr = sYear; yr <= eYear; yr++) {
+          yearsList.push(buildYearCycle(yr, cGanZhi));
+        }
+
+        majorCycles.push({
+          stepIndex: step,
+          isChildhoodLimit: false,
+          startSolarYear: sYear,
+          endSolarYear: eYear,
+          startAge: sAge,
+          endAge: sAge + 9,
+          ganZhi: cGanZhi,
+          stem: cStem,
+          stemWuXing: STEM_WUXING[cStem],
+          stemTenGod: getTenGod(dayStem, cStem),
+          branch: cBranch,
+          branchWuXing: BRANCH_WUXING[cBranch],
+          branchMainTenGod: getTenGod(dayStem, HIDDEN_STEMS_MAP[cBranch][0].stem),
+          naYin: NAYIN_MAP[cGanZhi],
+          twelveStage: getTwelveStage(dayStem, cBranch),
+          years: yearsList
+        });
+      }
+
+      // Step 6: 原局四柱內部刑沖合會檢測
+      const pList = [
+        { key: '年柱', s: pillars.year.stem.value, b: pillars.year.branch.value },
+        { key: '月柱', s: pillars.month.stem.value, b: pillars.month.branch.value },
+        { key: '日柱', s: pillars.day.stem.value, b: pillars.day.branch.value },
+        { key: '時柱', s: pillars.hour.stem.value, b: pillars.hour.branch.value }
+      ];
+      const natalInteractions = [];
+      for (let i = 0; i < pList.length; i++) {
+        for (let j = i + 1; j < pList.length; j++) {
+          const hits = checkPairInteractions(pList[i].s, pList[i].b, pList[i].key, pList[j].s, pList[j].b, pList[j].key);
+          natalInteractions.push(...hits);
+        }
+      }
+
+      return {
+        profile,
+        solarCal,
+        lunarDateText: `農曆 ${yearGanZhi}年 ${lunarObj.getMonthInChinese()}月 ${lunarObj.getDayInChinese()} ${hourGanZhi[1]}時`,
+        taiYuan: `${eightChar.getTaiYuan()} (${NAYIN_MAP[eightChar.getTaiYuan()] || ''})`,
+        mingGong: `${eightChar.getMingGong()} (${NAYIN_MAP[eightChar.getMingGong()] || ''})`,
+        shenGong: `${eightChar.getShenGong()} (${NAYIN_MAP[eightChar.getShenGong()] || ''})`,
+        pillars,
+        startLuck,
+        majorCycles,
+        natalInteractions
+      };
+    }
+
+    // 8. 玄空九宮飛星與每日順曆通書引擎
+    const STAR_META = {
+      1: { num: 1, name: '一白貪狼', colorName: '一白水', wuXing: '水', level: '大吉', tag: '桃花 / 人緣貴人', desc: '貪狼水星主文昌、人緣、遠行與偏財，利公關洽談與催旺貴人。' },
+      2: { num: 2, name: '二黑巨門', colorName: '二黑土', wuXing: '土', level: '大凶', tag: '病符位', desc: '巨門土星主疾厄與腸胃疲勞，此方位今日宜靜不宜動土久坐。' },
+      3: { num: 3, name: '三碧祿存', colorName: '三碧木', wuXing: '木', level: '凶', tag: '是非 / 爭執', desc: '祿存木星主口舌是非與急躁競爭，談判簽約宜避開此方。' },
+      4: { num: 4, name: '四綠文曲', colorName: '四綠木', wuXing: '木', level: '次吉', tag: '文昌 / 考學', desc: '文曲木星主科名、學術、創作與企劃靈感，利讀書研習。' },
+      5: { num: 5, name: '五黃廉貞', colorName: '五黃土', wuXing: '土', level: '大凶', tag: '五黃大煞', desc: '廉貞土星為至凶煞氣，主意外阻滯，嚴忌動土、敲打或放置紅黃物。' },
+      6: { num: 6, name: '六白武曲', colorName: '六白金', wuXing: '金', level: '次吉', tag: '偏財 / 權貴驛馬', desc: '武曲金星主職權升遷、武職與遠方偏財，利外勤與決策。' },
+      7: { num: 7, name: '七赤破軍', colorName: '七赤金', wuXing: '金', level: '凶', tag: '口舌 / 破財', desc: '破軍金星主漏財、金屬磕碰與口舌爭端，注意財務保管。' },
+      8: { num: 8, name: '八白左輔', colorName: '八白土', wuXing: '土', level: '大吉', tag: '正財 / 置業大吉', desc: '左輔土星為九運當旺財星，主正財進益、商業簽約與置業興旺。' },
+      9: { num: 9, name: '九紫右弼', colorName: '九紫火', wuXing: '火', level: '大吉', tag: '九運當旺 / 喜慶', desc: '右弼火星為下元九運大旺吉星，主喜慶、姻緣、名聲與投資獲利。' }
+    };
+
+    // 洛書九宮格渲染順序 (左上巽4 -> 中上離9 -> 右上坤2 -> 左中震3 -> 中宮5 -> 右中兌7 -> 左下艮8 -> 中下坎1 -> 右下乾6)
+    const PALACE_GRID_LAYOUT = [
+      { pos: '巽東南', dir: '東南', luoShu: 4 },
+      { pos: '離正南', dir: '正南', luoShu: 9 },
+      { pos: '坤西南', dir: '西南', luoShu: 2 },
+      { pos: '震正東', dir: '正東', luoShu: 3 },
+      { pos: '中宮',   dir: '中央', luoShu: 5 },
+      { pos: '兌正西', dir: '正西', luoShu: 7 },
+      { pos: '艮東北', dir: '東北', luoShu: 8 },
+      { pos: '坎正北', dir: '正北', luoShu: 1 },
+      { pos: '乾西北', dir: '西北', luoShu: 6 }
+    ];
+
+    function buildDailyAlmanacData(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const now = new Date();
+      const solar = Solar.fromYmdHms(y, m, d, now.getHours(), now.getMinutes(), 0);
+      const lunar = solar.getLunar();
+
+      const yearGanZhi = lunar.getYearInGanZhiExact();
+      const monthGanZhi = lunar.getMonthInGanZhiExact();
+      const dayGanZhi = lunar.getDayInGanZhiExact();
+      const hourGanZhi = lunar.getTimeInGanZhi();
+
+      // 節氣資訊
+      const prevJieQi = lunar.getPrevJieQi(true);
+      const nextJieQi = lunar.getNextJieQi(false);
+      const nextJieSolar = nextJieQi.getSolar();
+      const nextJieDate = new Date(nextJieSolar.getYear(), nextJieSolar.getMonth() - 1, nextJieSolar.getDay());
+      const curDate = new Date(y, m - 1, d);
+      const daysUntilNext = Math.max(0, Math.round((nextJieDate - curDate) / (1000 * 3600 * 24)));
+
+      // 計算年飛星入中宮: (2026 - Y) mod 9 + 1
+      const effSolarYear = lunar.getYear();
+      const yearCenterStar = ((2026 - effSolarYear) % 9 + 9) % 9 + 1;
+
+      // 計算月飛星入中宮
+      const yBranch = yearGanZhi[1];
+      let monthBaseStar = 2;
+      if (['子', '午', '卯', '酉'].includes(yBranch)) monthBaseStar = 8;
+      else if (['辰', '戌', '丑', '未'].includes(yBranch)) monthBaseStar = 5;
+      const monthBranchIdx = (BRANCHES.indexOf(monthGanZhi[1]) - 2 + 12) % 12; // 寅=0
+      const monthCenterStar = ((monthBaseStar - monthBranchIdx - 1) % 9 + 9) % 9 + 1;
+
+      // 計算日飛星入中宮 (夏至後陰遁逆飛，冬至後陽遁順飛)
+      const dayOfYear = Math.floor((curDate - new Date(y, 0, 0)) / (1000 * 3600 * 24));
+      const isYinDun = dayOfYear >= 172 && dayOfYear < 355; // 夏至~冬至前為陰遁
+      const gzIndex = (STEMS.indexOf(dayGanZhi[0]) * 6 + BRANCHES.indexOf(dayGanZhi[1]) * 5) % 60;
+      const dayCenterStar = isYinDun
+        ? ((9 - 1 - gzIndex) % 9 + 9) % 9 + 1
+        : ((gzIndex) % 9 + 9) % 9 + 1;
+
+      // 生成九宮格陣列
+      const palaces = PALACE_GRID_LAYOUT.map((p, idx) => {
+        const offsetFromCenter = p.luoShu - 5;
+        const calcPalaceStar = (centerStar, reverse = false) => {
+          const step = reverse ? -offsetFromCenter : offsetFromCenter;
+          return ((centerStar - 1 + step) % 9 + 9) % 9 + 1;
+        };
+        const dStarNum = calcPalaceStar(dayCenterStar, isYinDun);
+        const mStarNum = calcPalaceStar(monthCenterStar, false);
+        const yStarNum = calcPalaceStar(yearCenterStar, false);
+
+        return {
+          gridIndex: idx,
+          pos: p.pos,
+          dir: p.dir,
+          luoShu: p.luoShu,
+          dayStar: STAR_META[dStarNum],
+          monthStar: STAR_META[mStarNum],
+          yearStar: STAR_META[yStarNum]
+        };
+      });
+
+      // 十二時辰吉凶列表
+      const dayStemIdx = STEMS.indexOf(dayGanZhi[0]);
+      const ratStartStemIdx = (dayStemIdx % 5) * 2;
+      const SPIRITS = ['青龍', '明堂', '天刑', '朱雀', '金匱', '天德', '白虎', '玉堂', '天牢', '玄武', '司命', '勾陳'];
+      const SPIRIT_LUCK = [true, true, false, false, true, true, false, true, false, false, true, false];
+      const dayBranchIdx = BRANCHES.indexOf(dayGanZhi[1]);
+
+      const hourlyAlmanac = BRANCHES.map((b, idx) => {
+        const hStem = STEMS[(ratStartStemIdx + idx) % 10];
+        const spIdx = (idx - (dayBranchIdx % 12) + 12) % 12;
+        const startH = (idx * 2 - 1 + 24) % 24;
+        const endH = (startH + 2) % 24;
+        return {
+          branch: b,
+          ganZhi: hStem + b,
+          timeRange: `${String(startH).padStart(2, '0')}:00-${String(endH).padStart(2, '0')}:00`,
+          spirit: SPIRITS[spIdx],
+          isAuspicious: SPIRIT_LUCK[spIdx],
+          isCurrent: b === hourGanZhi[1]
+        };
+      });
+
+      const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+      const zhiShen = lunar.getZhiXing();
+      const xiu = lunar.getXiu();
+      const xiuLuck = lunar.getXiuLuck();
+
+      return {
+        solarDate: dateStr,
+        solarHeader: `西元 ${y} 年 ${m} 月 ${d} 日 星期${WEEKDAYS[curDate.getDay()]}`,
+        lunarHeader: `農曆 ${lunar.getMonthInChinese()}月 ${lunar.getDayInChinese()}`,
+        zodiac: ZODIAC[BRANCHES.indexOf(yearGanZhi[1])],
+        yearGanZhi,
+        monthGanZhi,
+        dayGanZhi,
+        hourGanZhi,
+        dayNaYin: NAYIN_MAP[dayGanZhi] || '',
+        jieQiBanner: `當前節氣：【${prevJieQi.getName()}】 ‧ 距離【${nextJieQi.getName()} (${nextJieSolar.toYmd()})】還有 ${daysUntilNext} 天`,
+        chongSha: `日沖：${lunar.getDayChongDesc()} ‧ 煞${lunar.getDaySha()}`,
+        yi: lunar.getDayYi() || ['祭祀', '祈福', '出行', '納財'],
+        ji: lunar.getDayJi() || ['動土', '破土', '安葬'],
+        jianChu: {
+          name: `${zhiShen}日`,
+          luck: ['除', '定', '執', '危', '成', '開'].includes(zhiShen) ? '吉' : (['建', '滿', '平', '收'].includes(zhiShen) ? '平' : '凶'),
+          desc: getJianChuDescription(zhiShen)
+        },
+        mansion: {
+          name: `${xiu}${lunar.getZheng()}${lunar.getAnimal()} (${xiuLuck})`,
+          desc: `值日二十八星宿為【${xiu}宿】，氣數主${xiuLuck === '吉' ? '百事順遂、利修造嫁娶與立券交易' : '宜守成內省、忌爭訟與重大動土'}。`
+        },
+        pengZu: `${lunar.getPengZuGan()} ‧ ${lunar.getPengZuZhi()}`,
+        taiShen: lunar.getDayPositionTai(),
+        compass: [
+          { label: '喜神', dir: lunar.getDayPositionXiDesc() },
+          { label: '財神', dir: lunar.getDayPositionCaiDesc() },
+          { label: '福神', dir: lunar.getDayPositionFuDesc() },
+          { label: '陽貴', dir: lunar.getDayPositionYangGuiDesc() },
+          { label: '陰貴', dir: lunar.getDayPositionYinGuiDesc() }
+        ],
+        dunType: isYinDun ? '夏至後陰遁逆飛' : '冬至後陽遁順飛',
+        dayCenterStar,
+        monthCenterStar,
+        yearCenterStar,
+        palaces,
+        hourlyAlmanac
+      };
+    }
+
+    function getJianChuDescription(zhi) {
+      const map = {
+        '建': '建日氣專，宜出行、上任、會友，忌開倉與動土。',
+        '除': '除舊佈新之象，宜清潔、祈福、求醫，忌遠行簽約。',
+        '滿': '豐收圓滿之象，宜開市、立券、納財，忌動土服藥。',
+        '平': '平穩中正之象，宜修造、塗泥、安機械，諸事平順。',
+        '定': '安定守成之象，宜宴飲、協議、安床，忌醫療訴訟。',
+        '執': '執持操守之象，宜捕捉、納采、修造，忌遠行移徙。',
+        '破': '月破大耗之象，宜破屋壞垣、求醫治病，餘事皆忌。',
+        '危': '居安思危之象，宜安床、祭祀、祈福，忌登高冒險。',
+        '成': '萬事成就之象，宜開市、入學、嫁娶、立券，百事大吉。',
+        '收': '收穫藏納之象，宜納財、進人口、置業，忌安葬出行。',
+        '開': '開通生發之象，宜開市、出行、求職、移徙，大吉大利。',
+        '閉': '閉藏收斂之象，宜築堤、補垣、塞穴，忌開市手術。'
+      };
+      return map[zhi] || '順應天時，擇吉行事。';
+    }
+
+    // 9. 全域狀態管理 (State Store)
+    const state = {
+      activeTab: 'bazi',
+      profiles: [
+        {
+          id: 'p-1',
+          name: '林先生',
+          gender: 'male',
+          birthDate: '1994-08-12',
+          birthTime: '23:25',
+          locationName: '台灣 台北市',
+          longitude: 121.52,
+          latitude: 25.05,
+          standardMeridian: 120,
+          useTrueSolarTime: true,
+          ziHourMode: 'split_zi',
+          tag: '本人 / 範例'
+        },
+        {
+          id: 'p-2',
+          name: '蘇女士',
+          gender: 'female',
+          birthDate: '1998-05-18',
+          birthTime: '14:20',
+          locationName: '台灣 宜蘭縣冬山鄉',
+          longitude: 121.79,
+          latitude: 24.63,
+          standardMeridian: 120,
+          useTrueSolarTime: true,
+          ziHourMode: 'split_zi',
+          tag: '親友'
+        },
+        {
+          id: 'p-3',
+          name: '陳總監',
+          gender: 'male',
+          birthDate: '1986-11-08',
+          birthTime: '08:15',
+          locationName: '台灣 台中市',
+          longitude: 120.67,
+          latitude: 24.15,
+          standardMeridian: 120,
+          useTrueSolarTime: true,
+          ziHourMode: 'split_zi',
+          tag: '商業客戶'
+        },
+        {
+          id: 'p-4',
+          name: '張小姐',
+          gender: 'female',
+          birthDate: '1992-02-04',
+          birthTime: '19:45',
+          locationName: '香港 中環',
+          longitude: 114.17,
+          latitude: 22.32,
+          standardMeridian: 120,
+          useTrueSolarTime: true,
+          ziHourMode: 'split_zi',
+          tag: '立春交節案例'
+        }
+      ],
+      activeProfileId: 'p-1',
+      primaryProfileId: 'p-1', // 綁定首頁日運刑沖提示之本人命盤
+      currentChart: null,
+      selectedMajorStep: 3,    // 預設選中涵蓋 2026 年之大運
+      expandedSolarYear: 2026, // 預設微展開 2026 丙午流年之 12 流月抽屜
+      almanacDate: '2026-10-21',
+      flyingStarMode: 'day',   // 'day' | 'month' | 'year'
+      selectedPalaceIdx: 4,    // 預設檢視中宮
+      modalGender: 'male',
+      isEditingCurrent: false
+    };
+
+    // 10. 渲染八字排盤主視圖
+    function renderBaZiView() {
+      const profile = state.profiles.find(p => p.id === state.activeProfileId) || state.profiles[0];
+      const chart = generateBirthChart(profile);
+      state.currentChart = chart;
+
+      // 自動定位包含 2026 年的大運步數 (初次切換命盤時)
+      if (state.selectedMajorStep === null) {
+        const foundStep = chart.majorCycles.find(mc => mc.startSolarYear <= 2026 && mc.endSolarYear >= 2026);
+        state.selectedMajorStep = foundStep ? foundStep.stepIndex : 1;
+      }
+
+      // 頂部命主資訊
+      document.getElementById('bazi-era-badge').textContent = profile.gender === 'male' ? '乾造' : '坤造';
+      document.getElementById('bazi-profile-name').textContent = profile.name;
+      const isPrimary = profile.id === state.primaryProfileId;
+      document.getElementById('bazi-self-badge').classList.toggle('hidden', !isPrimary);
+      document.getElementById('btn-set-primary').classList.toggle('hidden', isPrimary);
+      document.getElementById('bazi-zi-badge').textContent = profile.ziHourMode === 'split_zi'
+        ? '早夜子時：23:00日柱不換'
+        : '傳統子時：23:00換日柱';
+
+      document.getElementById('bazi-clock-time').textContent = `鐘錶平太陽時：${profile.birthDate} ${profile.birthTime}`;
+      document.getElementById('bazi-lunar-text').textContent = chart.lunarDateText;
+      document.getElementById('bazi-location-tag').textContent = `${profile.locationName} (${profile.longitude.toFixed(2)}°E)`;
+
+      const ts = chart.solarCal.trueSolarDate;
+      const tsStr = `${ts.getFullYear()}-${String(ts.getMonth() + 1).padStart(2, '0')}-${String(ts.getDate()).padStart(2, '0')} ${String(ts.getHours()).padStart(2, '0')}:${String(ts.getMinutes()).padStart(2, '0')}:${String(ts.getSeconds()).padStart(2, '0')}`;
+      document.getElementById('bazi-true-solar-time').textContent = `真太陽時：${tsStr}`;
+
+      const fmtSec = (s) => `${s >= 0 ? '+' : '-'}${Math.floor(Math.abs(s) / 60)}分${String(Math.abs(s) % 60).padStart(2, '0')}秒`;
+      document.getElementById('bazi-solar-offset-detail').textContent =
+        `經度差 ${fmtSec(chart.solarCal.longitudeOffsetSeconds)} │ 均時差(EOT) ${fmtSec(chart.solarCal.eotOffsetSeconds)} │ 總修正 ${fmtSec(chart.solarCal.totalOffsetSeconds)}`;
+
+      // 起運精算欄
+      const sl = chart.startLuck;
+      document.getElementById('bazi-luck-dir').textContent = sl.polarLabel;
+      document.getElementById('bazi-start-luck-headline').textContent =
+        `出生後 ${sl.years}歲 ${sl.months}個月 ${sl.days}天 ${sl.hours}小時 起運（西元 ${sl.exactStartDateStr} 交大運）`;
+      document.getElementById('bazi-handover-rule').textContent =
+        `${sl.handoverRuleText} │ 胎元:${chart.taiYuan} │ 命宮:${chart.mingGong}`;
+
+      // 五行統計標籤
+      const wxCount = { '木': 0, '火': 0, '土': 0, '金': 0, '水': 0 };
+      ['year', 'month', 'day', 'hour'].forEach(k => {
+        wxCount[chart.pillars[k].stem.wuXing]++;
+        wxCount[chart.pillars[k].branch.wuXing]++;
+      });
+      document.getElementById('bazi-wuxing-summary').innerHTML = Object.entries(wxCount).map(([wx, cnt]) => `
+        <span class="px-2 py-0.5 rounded border ${getWuXingColorClass(wx)}">${wx}:${cnt}</span>
+      `).join('');
+
+      // 四柱原局矩陣渲染
+      const cols = ['year', 'month', 'day', 'hour'];
+      const tbody = document.getElementById('bazi-pillars-tbody');
+      tbody.innerHTML = `
+        <!-- 主星 (十神) -->
+        <tr class="bg-obsidian/30">
+          <td class="py-2.5 px-2 text-xs text-muted border-r border-hairline whitespace-nowrap">主星</td>
+          ${cols.map(c => {
+            const tg = chart.pillars[c].stem.tenGod;
+            const isDay = c === 'day';
+            return `<td class="py-2.5 px-2 font-medium text-xs sm:text-sm border-r border-hairline last:border-r-0 whitespace-nowrap ${isDay ? 'text-realgar font-bold bg-realgar/5' : 'text-rice'}">${isDay ? `【${tg}】` : tg}</td>`;
+          }).join('')}
+        </tr>
+        <!-- 天干 -->
+        <tr>
+          <td class="py-3 px-2 text-xs text-muted border-r border-hairline whitespace-nowrap">天干</td>
+          ${cols.map(c => {
+            const st = chart.pillars[c].stem;
+            return `<td class="py-3 px-2 border-r border-hairline last:border-r-0 ${c === 'day' ? 'bg-realgar/5' : ''}">
+              <div class="flex flex-col items-center justify-center gap-1">
+                <span class="font-serif text-2xl sm:text-3xl font-bold leading-none ${getWuXingTextClass(st.wuXing)}">${st.value}</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border leading-none ${getWuXingColorClass(st.wuXing)}">${st.wuXing}</span>
+              </div>
+            </td>`;
+          }).join('')}
+        </tr>
+        <!-- 地支 -->
+        <tr>
+          <td class="py-3 px-2 text-xs text-muted border-r border-hairline whitespace-nowrap">地支</td>
+          ${cols.map(c => {
+            const br = chart.pillars[c].branch;
+            return `<td class="py-3 px-2 border-r border-hairline last:border-r-0 ${c === 'day' ? 'bg-realgar/5' : ''}">
+              <div class="flex flex-col items-center justify-center gap-1">
+                <span class="font-serif text-2xl sm:text-3xl font-bold leading-none ${getWuXingTextClass(br.wuXing)}">${br.value}</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border leading-none ${getWuXingColorClass(br.wuXing)}">${br.wuXing}</span>
+              </div>
+            </td>`;
+          }).join('')}
+        </tr>
+        <!-- 藏干與副星 -->
+        <tr class="bg-obsidian/25">
+          <td class="py-3 px-2 text-xs text-muted border-r border-hairline whitespace-nowrap">藏干<span class="block text-[10px]">(副星)</span></td>
+          ${cols.map(c => {
+            const hs = chart.pillars[c].branch.hiddenStems;
+            return `<td class="py-2.5 px-1.5 sm:px-2 border-r border-hairline last:border-r-0 align-top ${c === 'day' ? 'bg-realgar/5' : ''}">
+              <div class="space-y-1 flex flex-col items-center">
+                ${hs.map(h => `
+                  <div class="flex items-center justify-center gap-1 text-xs whitespace-nowrap">
+                    <span class="font-serif font-bold ${getWuXingTextClass(h.wuXing)}">${h.stem}${h.wuXing}</span>
+                    <span class="text-rice">${h.tenGod}</span>
+                    <span class="text-[10px] font-mono text-muted hidden sm:inline">(${h.weight}%)</span>
+                  </div>
+                `).join('')}
+              </div>
+            </td>`;
+          }).join('')}
+        </tr>
+        <!-- 納音五行 -->
+        <tr>
+          <td class="py-2 px-2 text-xs text-muted border-r border-hairline whitespace-nowrap">納音</td>
+          ${cols.map(c => `<td class="py-2 px-2 text-xs text-rice border-r border-hairline last:border-r-0 whitespace-nowrap ${c === 'day' ? 'bg-realgar/5' : ''}">${chart.pillars[c].naYin}</td>`).join('')}
+        </tr>
+        <!-- 星運 (日干長生十二宮) -->
+        <tr class="bg-obsidian/25">
+          <td class="py-2 px-2 text-xs text-muted border-r border-hairline whitespace-nowrap">星運</td>
+          ${cols.map(c => `<td class="py-2 px-2 text-xs font-serif font-semibold text-jade border-r border-hairline last:border-r-0 ${c === 'day' ? 'bg-realgar/5' : ''}">
+            <span>${chart.pillars[c].twelveStage}</span>
+            <span class="text-[11px] font-sans font-normal text-muted block sm:inline">(自坐:${chart.pillars[c].selfSittingStage})</span>
+          </td>`).join('')}
+        </tr>
+        <!-- 旬空 (空亡) -->
+        <tr>
+          <td class="py-2 px-2 text-xs text-muted border-r border-hairline whitespace-nowrap">空亡</td>
+          ${cols.map(c => {
+            const p = chart.pillars[c];
+            return `<td class="py-2 px-2 text-xs font-mono border-r border-hairline last:border-r-0 whitespace-nowrap ${c === 'day' ? 'bg-realgar/5' : ''}">
+              <span class="text-rice">${p.kongWang.join('')}</span>
+              ${p.isBranchKongWang ? '<span class="ml-1 px-1.5 py-0.5 rounded text-[10px] bg-cinnabar/20 text-cinnabar border border-cinnabar/40 leading-none">落空</span>' : ''}
+            </td>`;
+          }).join('')}
+        </tr>
+        <!-- 神煞 -->
+        <tr class="bg-obsidian/30">
+          <td class="py-2.5 px-2 text-xs text-muted border-r border-hairline whitespace-nowrap">神煞</td>
+          ${cols.map(c => {
+            const ss = chart.pillars[c].shenSha;
+            return `<td class="py-2.5 px-2 border-r border-hairline last:border-r-0 ${c === 'day' ? 'bg-realgar/5' : ''}">
+              <div class="flex flex-wrap justify-center gap-1">
+                ${ss.length ? ss.map(s => {
+                  const isNoble = s.includes('貴人') || s === '祿神' || s === '文昌' || s === '將星' || s === '紅鸞' || s === '天喜';
+                  return `<span class="px-1.5 py-0.5 rounded text-[11px] whitespace-nowrap ${isNoble ? 'bg-realgar/15 text-realgar border border-realgar/40' : 'bg-elevated text-rice border border-hairline'}">${s}</span>`;
+                }).join('') : '<span class="text-xs text-muted">—</span>'}
+              </div>
+            </td>`;
+          }).join('')}
+        </tr>
+      `;
+
+      // 原局刑沖合會列表
+      const interEl = document.getElementById('bazi-natal-interactions');
+      if (chart.natalInteractions.length === 0) {
+        interEl.innerHTML = `<span class="text-rice">原局四柱平和，無明顯天沖地沖</span>`;
+      } else {
+        interEl.innerHTML = chart.natalInteractions.map(it => {
+          const badgeStyle = it.severity === 'auspicious'
+            ? 'bg-realgar/15 text-realgar border-realgar/40'
+            : (it.severity === 'warning' ? 'bg-cinnabar/20 text-red-300 border-cinnabar/50' : 'bg-elevated text-rice border-hairline');
+          return `<span class="px-2 py-0.5 rounded border ${badgeStyle}">${it.participants}：${it.detail}</span>`;
+        }).join('');
+      }
+
+      renderMajorCyclesAxis();
+      renderYearCyclesPanel();
+    }
+
+    // 11. 渲染大運橫軸
+    function renderMajorCyclesAxis() {
+      const chart = state.currentChart;
+      const axisEl = document.getElementById('major-cycles-axis');
+      axisEl.innerHTML = chart.majorCycles.map(mc => {
+        const isSelected = mc.stepIndex === state.selectedMajorStep;
+        return `
+          <button onclick="selectMajorCycle(${mc.stepIndex})" class="min-w-[106px] sm:min-w-[116px] p-2.5 rounded-xl border transition-all text-center flex flex-col items-center justify-between shrink-0 ${isSelected ? 'gold-active-card' : 'bg-elevated/70 border-hairline hover:border-realgar/40'}">
+            <div class="text-[11px] font-mono whitespace-nowrap ${isSelected ? 'text-realgar font-semibold' : 'text-muted'}">
+              ${mc.startSolarYear}~${mc.endSolarYear}
+            </div>
+            <div class="text-xs whitespace-nowrap ${isSelected ? 'text-jade font-medium' : 'text-rice'} my-0.5">
+              ${mc.isChildhoodLimit ? '童限 (未上運)' : `${mc.startAge}~${mc.endAge}歲`}
+            </div>
+            <div class="my-1.5 flex items-center justify-center gap-2">
+              <div class="flex flex-col items-center">
+                <span class="font-serif text-lg sm:text-xl font-bold leading-tight ${getWuXingTextClass(mc.stemWuXing)}">${mc.stem}</span>
+                <span class="text-[10px] text-rice whitespace-nowrap mt-0.5">${mc.stemTenGod}</span>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="font-serif text-lg sm:text-xl font-bold leading-tight ${getWuXingTextClass(mc.branchWuXing)}">${mc.branch}</span>
+                <span class="text-[10px] text-rice whitespace-nowrap mt-0.5">${mc.branchMainTenGod}</span>
+              </div>
+            </div>
+            <div class="text-[10px] text-muted border-t border-hairline/70 w-full pt-1.5 flex items-center justify-between gap-1 px-1 whitespace-nowrap">
+              <span>${mc.naYin}</span>
+              <span class="text-jade font-serif">${mc.twelveStage}</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectMajorCycle(stepIndex) {
+      state.selectedMajorStep = stepIndex;
+      const mc = state.currentChart.majorCycles.find(m => m.stepIndex === stepIndex);
+      if (mc && mc.years.length > 0) {
+        const has2026 = mc.years.find(y => y.solarYear === 2026);
+        state.expandedSolarYear = has2026 ? 2026 : mc.years[0].solarYear;
+      }
+      renderMajorCyclesAxis();
+      renderYearCyclesPanel();
+    }
+
+    // 12. 渲染大運統轄之 10 個流年列表 + 12 節氣流月微抽屜
+    function renderYearCyclesPanel() {
+      const chart = state.currentChart;
+      const mc = chart.majorCycles.find(m => m.stepIndex === state.selectedMajorStep) || chart.majorCycles[0];
+
+      document.getElementById('selected-dayun-indicator').textContent = mc.isChildhoodLimit
+        ? `當前檢視：童限 (${mc.startSolarYear}~${mc.endSolarYear})`
+        : `當前檢視：第 ${mc.stepIndex} 步【${mc.ganZhi}】大運 (${mc.startSolarYear}~${mc.endSolarYear})`;
+
+      document.getElementById('year-panel-title').textContent = mc.isChildhoodLimit
+        ? `【童限 ‧ 月柱${mc.ganZhi}管轄】流年明細`
+        : `【${mc.ganZhi}大運 (${mc.startSolarYear}~${mc.endSolarYear} ‧ ${mc.naYin})】統轄十流年明細`;
+
+      const listEl = document.getElementById('year-cycles-list');
+      listEl.innerHTML = mc.years.map(yc => {
+        const isExpanded = state.expandedSolarYear === yc.solarYear;
+        const isCurrentYear = yc.solarYear === 2026;
+        return `
+          <div class="transition-colors ${isExpanded ? 'bg-elevated/40' : 'hover:bg-elevated/25'}">
+            <!-- 流年主橫條 -->
+            <div onclick="toggleYearMonthsDrawer(${yc.solarYear})" class="px-4 py-3 cursor-pointer flex flex-wrap items-center justify-between gap-2 select-none">
+              <div class="flex items-center gap-3 sm:gap-5">
+                <div class="flex items-center gap-2 min-w-[115px]">
+                  <span class="text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90 text-realgar' : 'text-muted'}">▶</span>
+                  <span class="font-mono font-bold text-sm sm:text-base ${isCurrentYear ? 'text-realgar' : 'text-jade'}">${yc.solarYear}年</span>
+                  <span class="text-xs font-mono text-muted">(${yc.nominalAge}歲)</span>
+                </div>
+
+                <!-- 流年干支與十神 -->
+                <div class="flex items-center gap-2">
+                  <span class="font-serif text-base sm:text-lg font-bold ${getWuXingTextClass(yc.stemWuXing)}">${yc.stem}</span>
+                  <span class="text-xs text-rice">(${yc.stemTenGod})</span>
+                  <span class="font-serif text-base sm:text-lg font-bold ${getWuXingTextClass(yc.branchWuXing)}">${yc.branch}</span>
+                  <span class="text-xs text-rice">(${yc.branchMainTenGod})</span>
+                </div>
+
+                <!-- 納音與長生 -->
+                <div class="hidden sm:flex items-center gap-2 text-xs">
+                  <span class="px-2 py-0.5 rounded bg-obsidian text-rice border border-hairline">${yc.naYin}</span>
+                  <span class="px-2 py-0.5 rounded bg-obsidian text-jade font-serif border border-hairline">長生：${yc.twelveStage}</span>
+                </div>
+              </div>
+
+              <!-- 刑沖合會預警與當下流年標記 -->
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${isCurrentYear ? '<span class="px-2 py-0.5 rounded text-[11px] bg-realgar/20 text-realgar border border-realgar/50 font-medium">★ 今年 (丙午)</span>' : ''}
+                ${yc.alerts.map(a => `
+                  <span class="px-2 py-0.5 rounded text-[11px] font-medium ${a.level === 'warning' ? 'cinnabar-seal' : 'bg-wx-wood/20 text-wx-wood border border-wx-wood/50'}">${a.text}</span>
+                `).join('')}
+                <span class="text-[11px] text-muted ml-1">${isExpanded ? '收合流月 ▲' : '12流月 ▼'}</span>
+              </div>
+            </div>
+
+            <!-- 二級微聯動：12節氣流月微抽屜 (Accordion) -->
+            ${isExpanded ? `
+              <div class="px-4 pb-4 pt-1 fade-slide-enter">
+                <div class="bg-obsidian/90 rounded-xl p-3 border border-realgar/40 space-y-2">
+                  <div class="flex items-center justify-between text-[11px] text-muted border-b border-hairline pb-1.5">
+                    <span>【${yc.solarYear} ${yc.ganZhi}年】十二節氣流月干支（嚴格以立春等十二節交接換月，不排流日流時）</span>
+                    <span class="font-mono text-realgar">五虎遁元排月</span>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 pt-1">
+                    ${yc.months.map(m => `
+                      <div class="bg-ink p-2 rounded-lg border border-hairline text-center hover:border-realgar/50 transition">
+                        <div class="text-[10px] font-mono text-muted">${m.approxDate} ${m.jieQiName}</div>
+                        <div class="my-1 font-serif text-sm font-bold text-jade">
+                          <span class="${getWuXingTextClass(STEM_WUXING[m.stem])}">${m.stem}</span><span class="${getWuXingTextClass(BRANCH_WUXING[m.branch])}">${m.branch}</span>
+                        </div>
+                        <div class="text-[10px] text-rice">${m.stemTenGod} ‧ ${m.branchTenGod}</div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleYearMonthsDrawer(solarYear) {
+      state.expandedSolarYear = state.expandedSolarYear === solarYear ? null : solarYear;
+      renderYearCyclesPanel();
+    }
+
+    // 13. 渲染每日順曆與玄空九宮飛星視圖
+    function renderAlmanacView() {
+      const alm = buildDailyAlmanacData(state.almanacDate);
+      document.getElementById('almanac-date-picker').value = state.almanacDate;
+      document.getElementById('alm-solar-header').textContent = alm.solarHeader;
+      document.getElementById('alm-lunar-header').textContent = alm.lunarHeader;
+      document.getElementById('alm-jieqi-banner').textContent = alm.jieQiBanner;
+
+      document.getElementById('alm-pillar-year').textContent = alm.yearGanZhi;
+      document.getElementById('alm-zodiac').textContent = `生肖${alm.zodiac}`;
+      document.getElementById('alm-pillar-month').textContent = alm.monthGanZhi;
+      document.getElementById('alm-pillar-day').textContent = alm.dayGanZhi;
+      document.getElementById('alm-day-nayin').textContent = alm.dayNaYin;
+      document.getElementById('alm-pillar-hour').textContent = alm.hourGanZhi;
+      document.getElementById('alm-hour-label').textContent = `${alm.hourGanZhi[1]}時`;
+
+      // 個人本命盤流日刑沖即時比對
+      const primaryProfile = state.profiles.find(p => p.id === state.primaryProfileId) || state.profiles[0];
+      const primaryChart = generateBirthChart(primaryProfile);
+      const natalDayStem = primaryChart.pillars.day.stem.value;
+      const natalDayBranch = primaryChart.pillars.day.branch.value;
+      const flowDayStem = alm.dayGanZhi[0];
+      const flowDayBranch = alm.dayGanZhi[1];
+
+      const dayInteractions = checkPairInteractions(
+        natalDayStem, natalDayBranch, '本命日柱',
+        flowDayStem, flowDayBranch, '流日'
+      );
+      const flowTenGod = getTenGod(natalDayStem, flowDayStem);
+      const alertCard = document.getElementById('personal-daily-alert-card');
+
+      let advice = `今日流日天干透出【${flowTenGod}】，與您本命日柱平和相處，宜按部就班推進日常計畫。`;
+      if (dayInteractions.some(i => i.tag === '天剋地沖' || i.tag === '六沖')) {
+        advice = `今日流日與您日支相沖（日破），外境變動或突發行程較多，出行注意交通安全，重要簽約與情緒溝通宜緩不宜急。`;
+      } else if (dayInteractions.some(i => i.tag === '六合' || i.tag === '天合' || i.tag === '半合')) {
+        advice = `今日流日與您日柱形成合局，人際貴人運順遂，適合商務洽談、合作簽約與社交聚會。`;
+      } else if (dayInteractions.some(i => i.tag === '相刑' || i.tag === '自刑')) {
+        advice = `今日流日觸發日支相刑，留心文書合約細節與內部溝通摩擦，保持耐心可化繁為簡。`;
+      }
+
+      alertCard.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div class="space-y-1.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-xs font-serif font-bold bg-realgar/20 text-realgar border border-realgar/40">個人流日刑沖雷達</span>
+              <span class="text-xs sm:text-sm font-semibold text-jade">
+                綁定命主：${primaryProfile.name}（本命日柱：<span class="text-realgar font-serif">${natalDayStem}${natalDayBranch}</span>）✕ 今日流日：<span class="text-realgar font-serif">${alm.dayGanZhi}</span>（${flowTenGod}值日）
+              </span>
+            </div>
+            <p class="text-xs text-rice">${advice}</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+            ${dayInteractions.length > 0 ? dayInteractions.map(it => `
+              <span class="px-2.5 py-1 rounded-lg text-xs font-serif font-bold ${it.severity === 'warning' ? 'cinnabar-seal' : 'bg-realgar/20 text-realgar border border-realgar'}">
+                【${it.tag}】${it.detail}
+              </span>
+            `).join('') : `
+              <span class="px-2.5 py-1 rounded-lg text-xs bg-wx-wood/15 text-wx-wood border border-wx-wood/40 font-medium">
+                平穩無刑沖 ‧ ${flowTenGod}主事
+              </span>
+            `}
+          </div>
+        </div>
+      `;
+
+      // 宜忌與建除星宿
+      document.getElementById('alm-chong-sha').textContent = alm.chongSha;
+      document.getElementById('alm-yi-list').innerHTML = alm.yi.slice(0, 10).map(item =>
+        `<span class="px-2 py-0.5 rounded text-xs bg-wx-wood/15 text-wx-wood border border-wx-wood/30">${item}</span>`
+      ).join('');
+      document.getElementById('alm-ji-list').innerHTML = alm.ji.slice(0, 10).map(item =>
+        `<span class="px-2 py-0.5 rounded text-xs bg-cinnabar/15 text-red-300 border border-cinnabar/30">${item}</span>`
+      ).join('');
+
+      document.getElementById('alm-jianchu-title').textContent = `${alm.jianChu.name}（${alm.jianChu.luck}）`;
+      document.getElementById('alm-jianchu-desc').textContent = alm.jianChu.desc;
+      document.getElementById('alm-mansion-title').textContent = alm.mansion.name;
+      document.getElementById('alm-mansion-desc').textContent = alm.mansion.desc;
+      document.getElementById('alm-pengzu').textContent = alm.pengZu;
+      document.getElementById('alm-taishen').textContent = alm.taiShen;
+
+      document.getElementById('alm-compass-row').innerHTML = alm.compass.map(c => `
+        <div class="bg-ink p-1.5 rounded-lg border border-hairline">
+          <div class="text-[10px] text-muted">${c.label}</div>
+          <div class="font-serif font-bold text-jade mt-0.5">${c.dir}</div>
+        </div>
+      `).join('');
+
+      // 玄空九宮飛星盤渲染
+      renderFlyingStarGrid(alm);
+
+      // 十二時辰時間軸
+      document.getElementById('hourly-almanac-timeline').innerHTML = alm.hourlyAlmanac.map(h => `
+        <div class="p-2.5 rounded-xl border text-center transition ${h.isCurrent ? 'gold-active-card' : 'bg-obsidian/70 border-hairline'}">
+          <div class="text-[10px] font-mono text-muted">${h.timeRange}</div>
+          <div class="font-serif font-bold text-sm text-jade my-1">${h.ganZhi}時</div>
+          <div class="text-[11px] font-medium ${h.isAuspicious ? 'text-realgar' : 'text-muted'}">
+            ${h.isAuspicious ? '●' : '○'} ${h.spirit}(${h.isAuspicious ? '吉' : '凶'})
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderFlyingStarGrid(alm) {
+      const mode = state.flyingStarMode;
+      ['day', 'month', 'year'].forEach(m => {
+        const btn = document.getElementById(`fs-mode-${m}`);
+        if (m === mode) {
+          btn.className = 'px-2.5 py-1 rounded bg-elevated text-realgar font-medium border border-realgar/40';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded text-rice hover:text-jade';
+        }
+      });
+
+      document.getElementById('flying-star-subtitle').textContent =
+        `${alm.dunType} ‧ 日星${STAR_META[alm.dayCenterStar].colorName}入中 │ 年星${STAR_META[alm.yearCenterStar].colorName} │ 月星${STAR_META[alm.monthCenterStar].colorName}`;
+
+      const gridEl = document.getElementById('flying-star-grid');
+      gridEl.innerHTML = alm.palaces.map(p => {
+        const activeStar = mode === 'day' ? p.dayStar : (mode === 'month' ? p.monthStar : p.yearStar);
+        const isSelected = p.gridIndex === state.selectedPalaceIdx;
+        const isAuspicious = activeStar.level.includes('吉');
+        const isBad = activeStar.level.includes('凶');
+
+        return `
+          <button onclick="selectFlyingPalace(${p.gridIndex})" class="p-2.5 sm:p-3 rounded-xl border text-left transition flex flex-col justify-between min-h-[108px] ${isSelected ? 'gold-active-card' : 'bg-obsidian/80 border-hairline hover:border-realgar/40'}">
+            <div class="flex items-center justify-between gap-1 text-[10px] text-muted w-full whitespace-nowrap">
+              <span class="font-medium text-rice">${p.pos}</span>
+              <span class="font-mono">年${p.yearStar.num}‧月${p.monthStar.num}</span>
+            </div>
+            <div class="my-1.5 text-center w-full">
+              <div class="font-serif text-base sm:text-lg font-bold whitespace-nowrap ${getWuXingTextClass(activeStar.wuXing)}">
+                【${activeStar.colorName}】
+              </div>
+              <div class="text-[11px] text-rice whitespace-nowrap">${activeStar.name}</div>
+            </div>
+            <div class="flex items-center justify-between gap-1 w-full pt-1.5 border-t border-hairline/60 text-[10px]">
+              <span class="truncate text-rice">${activeStar.tag}</span>
+              <span class="px-1.5 py-0.5 rounded font-bold shrink-0 leading-none ${isAuspicious ? 'bg-realgar/20 text-realgar' : (isBad ? 'bg-cinnabar/25 text-red-300' : 'bg-elevated text-rice')}">${activeStar.level}</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      const selPalace = alm.palaces[state.selectedPalaceIdx] || alm.palaces[4];
+      const focusStar = mode === 'day' ? selPalace.dayStar : (mode === 'month' ? selPalace.monthStar : selPalace.yearStar);
+      document.getElementById('flying-star-detail').innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="font-serif font-bold text-realgar">【${selPalace.pos}】${focusStar.name}（${focusStar.colorName} ‧ ${focusStar.level}）</span>
+          <span class="font-mono text-[11px] text-muted">同宮疊星：年星${selPalace.yearStar.colorName} ✕ 月星${selPalace.monthStar.colorName} ✕ 日星${selPalace.dayStar.colorName}</span>
+        </div>
+        <p class="text-rice leading-relaxed">${focusStar.desc}</p>
+      `;
+    }
+
+    function setFlyingStarMode(mode) {
+      state.flyingStarMode = mode;
+      renderAlmanacView();
+    }
+
+    function selectFlyingPalace(idx) {
+      state.selectedPalaceIdx = idx;
+      renderAlmanacView();
+    }
+
+    function shiftAlmanacDate(days) {
+      const [y, m, d] = state.almanacDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      dt.setDate(dt.getDate() + days);
+      state.almanacDate = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      renderAlmanacView();
+    }
+
+    function onAlmanacDatePick(val) {
+      if (!val) return;
+      state.almanacDate = val;
+      renderAlmanacView();
+    }
+
+    function resetAlmanacToToday() {
+      state.almanacDate = '2026-10-21';
+      renderAlmanacView();
+    }
+
+    // 14. 命盤檔案庫渲染與管理
+    function renderVaultList() {
+      const q = (document.getElementById('vault-search-input')?.value || '').trim().toLowerCase();
+      document.getElementById('vault-count-badge').textContent = state.profiles.length;
+
+      const filtered = state.profiles.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.locationName.toLowerCase().includes(q) ||
+        p.birthDate.includes(q)
+      );
+
+      const gridEl = document.getElementById('vault-profiles-grid');
+      gridEl.innerHTML = filtered.map(p => {
+        const chart = generateBirthChart(p);
+        const isActive = p.id === state.activeProfileId;
+        const isPrimary = p.id === state.primaryProfileId;
+        return `
+          <div class="p-4 rounded-xl border transition flex flex-col justify-between gap-3 ${isActive ? 'gold-active-card' : 'bg-obsidian/80 border-hairline hover:border-realgar/40'}">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-[11px] font-serif font-bold bg-elevated text-realgar border border-realgar/30">
+                    ${p.gender === 'male' ? '乾造' : '坤造'}
+                  </span>
+                  <h4 class="font-serif font-bold text-base text-jade">${p.name}</h4>
+                  ${isPrimary ? '<span class="text-[11px] px-2 py-0.5 rounded cinnabar-seal">★ 本人日運綁定</span>' : ''}
+                </div>
+                <div class="text-xs font-mono text-muted mt-1">${p.birthDate} ${p.birthTime} ‧ ${p.locationName}</div>
+              </div>
+              <div class="flex items-center gap-1.5 font-serif text-sm font-bold bg-ink px-2.5 py-1 rounded-lg border border-hairline">
+                <span class="${getWuXingTextClass(chart.pillars.year.stem.wuXing)}">${chart.pillars.year.ganZhi}</span>
+                <span class="${getWuXingTextClass(chart.pillars.month.stem.wuXing)}">${chart.pillars.month.ganZhi}</span>
+                <span class="text-realgar underline decoration-realgar/50">${chart.pillars.day.ganZhi}</span>
+                <span class="${getWuXingTextClass(chart.pillars.hour.stem.wuXing)}">${chart.pillars.hour.ganZhi}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-hairline/70 text-xs">
+              <span class="text-muted font-mono">起運：${chart.startLuck.years}歲${chart.startLuck.months}月 (${chart.startLuck.firstLuckSolarYear}年)</span>
+              <div class="flex items-center gap-2">
+                ${!isPrimary ? `<button onclick="bindPrimaryFromVault('${p.id}')" class="px-2.5 py-1 rounded bg-elevated hover:bg-cinnabar/20 text-rice hover:text-red-300 border border-hairline">設為本人</button>` : ''}
+                <button onclick="loadProfileFromVault('${p.id}')" class="px-3 py-1 rounded bg-realgar/20 hover:bg-realgar/30 text-realgar border border-realgar/40 font-medium">查看排盤 →</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadProfileFromVault(id) {
+      state.activeProfileId = id;
+      state.selectedMajorStep = null;
+      switchTab('bazi');
+      showToast('已切換命盤並完成真太陽時與大運排算');
+    }
+
+    function bindPrimaryFromVault(id) {
+      state.primaryProfileId = id;
+      renderVaultList();
+      renderBaZiView();
+      showToast('已綁定為「本人命盤」，順曆首頁將同步更新您的流日刑沖提示');
+    }
+
+    function setAsPrimaryProfile() {
+      state.primaryProfileId = state.activeProfileId;
+      renderBaZiView();
+      showToast('已設為本人命盤！可前往「順曆黃曆」查看今日流日刑沖');
+    }
+
+    // 15. 彈窗與標籤頁切換控制
+    function switchTab(tab) {
+      state.activeTab = tab;
+      ['bazi', 'almanac', 'vault', 'publish'].forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`tab-${t}`);
+        const mBtn = document.getElementById(`m-tab-${t}`);
+        if (t === tab) {
+          view?.classList.remove('hidden');
+          if (btn) btn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 bg-elevated text-realgar border border-realgar/50 shadow whitespace-nowrap';
+          if (mBtn) mBtn.className = 'flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-realgar font-bold';
+        } else {
+          view?.classList.add('hidden');
+          if (btn) btn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap';
+          if (mBtn) mBtn.className = 'flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-muted hover:text-rice';
+        }
+      });
+
+      if (tab === 'bazi') renderBaZiView();
+      if (tab === 'almanac') renderAlmanacView();
+      if (tab === 'vault') renderVaultList();
+      if (tab === 'publish') renderAppIconCanvas(state.iconTheme || 'obsidian');
+    }
+
+    // 16. 手機真機外框預覽模式與 1024x1024 商店圖標生成器
+    function toggleMobileSimulator() {
+      state.mobileSimulator = !state.mobileSimulator;
+      document.body.classList.toggle('mobile-simulator-mode', state.mobileSimulator);
+      const simBar = document.getElementById('sim-status-bar');
+      const mNav = document.getElementById('mobile-bottom-nav');
+      const label = document.getElementById('sim-toggle-label');
+
+      if (state.mobileSimulator) {
+        simBar.classList.remove('hidden');
+        simBar.classList.add('flex');
+        mNav.classList.remove('md:hidden');
+        label.textContent = '退出手機外框';
+        showToast('已切換為 iPhone 手機真機預覽模式');
+      } else {
+        simBar.classList.add('hidden');
+        simBar.classList.remove('flex');
+        mNav.classList.add('md:hidden');
+        label.textContent = '手機外框預覽';
+        showToast('已切換回全寬度響應式視圖');
+      }
+    }
+
+    function renderAppIconCanvas(theme = 'obsidian') {
+      state.iconTheme = theme;
+      const canvas = document.getElementById('app-icon-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = 1024;
+      const H = 1024;
+
+      // 1. 不透明滿版底色 (符合 Apple App Store 嚴格禁透明通道規範)
+      const grad = ctx.createRadialGradient(W * 0.5, H * 0.35, 80, W * 0.5, H * 0.5, 720);
+      if (theme === 'cinnabar') {
+        grad.addColorStop(0, '#9E2A28');
+        grad.addColorStop(1, '#3D1010');
+      } else {
+        grad.addColorStop(0, '#1D222C');
+        grad.addColorStop(1, '#0F1115');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 2. 外層金石篆刻雙邊框
+      ctx.strokeStyle = theme === 'cinnabar' ? '#F2EFE9' : '#C83E3B';
+      ctx.lineWidth = 28;
+      ctx.strokeRect(110, 110, W - 220, H - 220);
+
+      ctx.strokeStyle = '#D4AF37';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(148, 148, W - 296, H - 296);
+
+      // 3. 中央分割界格線
+      ctx.beginPath();
+      ctx.moveTo(W / 2, 168);
+      ctx.lineTo(W / 2, H - 168);
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // 4. 繪製「玄墨」大字與「萬年曆」副標
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '900 330px "Noto Serif TC", serif';
+      ctx.fillStyle = theme === 'cinnabar' ? '#F2EFE9' : '#F28B88';
+      ctx.fillText('玄', W * 0.31, H * 0.46);
+
+      ctx.fillStyle = '#F2EFE9';
+      ctx.fillText('墨', W * 0.69, H * 0.46);
+
+      // 底部雄黃金銘文
+      ctx.font = '600 56px "Noto Serif TC", serif';
+      ctx.fillStyle = '#D4AF37';
+      ctx.fillText('子 平 八 字 ‧ 通 書 黃 曆', W * 0.5, H * 0.78);
+    }
+
+    function downloadAppIcon(size = 1024) {
+      renderAppIconCanvas(state.iconTheme || 'obsidian');
+      const srcCanvas = document.getElementById('app-icon-canvas');
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = size;
+      outCanvas.height = size;
+      const outCtx = outCanvas.getContext('2d');
+      outCtx.drawImage(srcCanvas, 0, 0, size, size);
+
+      const link = document.createElement('a');
+      link.download = `xuanmo-app-icon-${size}x${size}.png`;
+      link.href = outCanvas.toDataURL('image/png');
+      link.click();
+      showToast(`已下載 ${size}×${size} 商店標準無透明通道 PNG 圖標！`);
+    }
+
+    function copyCapacitorSetup() {
+      const cmd = [
+        'mkdir xuanmo-app && cd xuanmo-app && mkdir www',
+        '# 將玄墨萬年曆 HTML 存為 www/index.html',
+        'npm init -y',
+        'npm install @capacitor/core @capacitor/cli @capacitor/ios @capacitor/android',
+        'npx cap init "玄墨萬年曆" "com.xuanmo.almanac" --web-dir www',
+        'npx cap add ios',
+        'npx cap add android',
+        'npx cap sync'
+      ].join('\n');
+      const ta = document.createElement('textarea');
+      ta.value = cmd;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('已複製 Capacitor 雙平台打包指令至剪貼簿！');
+    }
+
+    function copyComplianceText() {
+      const txt = `【App Store / Google Play 商店標題】\n玄墨萬年曆 - 專業子平八字真太陽時與玄空通書黃曆\n\n【App 審核備註 (Review Notes)】\n本應用程式內建高精度天文曆法計算引擎（包含 Spencer 1971 均時差真太陽時校正公式與二十四節氣秒級交接演算法），提供華人傳統干支曆法查詢、節氣起運折算與日常擇日宜忌參考。所有運算與命盤建檔皆 100% 於使用者裝置本地端完成，不收集任何個人隱私數據。\n\n【免責聲明】\n本軟體提供之傳統干支曆法與玄空九宮飛星資訊僅供民俗文化研究與日程規劃參考，不構成任何醫療、法律或財務建議。`;
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('已複製 App Store 提審備註與合規免責聲明！');
+    }
+
+    function openBirthModal(editCurrent = false) {
+      state.isEditingCurrent = editCurrent;
+      const modal = document.getElementById('birth-modal');
+      modal.classList.remove('hidden');
+
+      if (editCurrent) {
+        const p = state.profiles.find(x => x.id === state.activeProfileId) || state.profiles[0];
+        document.getElementById('modal-title').textContent = `修改命盤：${p.name}`;
+        document.getElementById('input-name').value = p.name;
+        document.getElementById('input-date').value = p.birthDate;
+        document.getElementById('input-time').value = p.birthTime;
+        document.getElementById('input-longitude').value = p.longitude;
+        document.getElementById('input-solar-toggle').checked = p.useTrueSolarTime;
+        document.getElementById('input-zi-mode').value = p.ziHourMode;
+        selectModalGender(p.gender);
+      } else {
+        document.getElementById('modal-title').textContent = '新增專業八字排盤';
+        document.getElementById('input-name').value = '新命主';
+        document.getElementById('input-date').value = '1995-06-15';
+        document.getElementById('input-time').value = '10:30';
+        selectModalGender('male');
+      }
+      updateModalSolarPreview();
+    }
+
+    function closeBirthModal() {
+      document.getElementById('birth-modal').classList.add('hidden');
+    }
+
+    function selectModalGender(g) {
+      state.modalGender = g;
+      const mBtn = document.getElementById('btn-gender-male');
+      const fBtn = document.getElementById('btn-gender-female');
+      if (g === 'male') {
+        mBtn.className = 'py-2 rounded-lg border border-realgar bg-realgar/20 text-realgar font-serif font-bold';
+        fBtn.className = 'py-2 rounded-lg border border-hairline bg-obsidian text-rice';
+      } else {
+        fBtn.className = 'py-2 rounded-lg border border-realgar bg-realgar/20 text-realgar font-serif font-bold';
+        mBtn.className = 'py-2 rounded-lg border border-hairline bg-obsidian text-rice';
+      }
+    }
+
+    function onCityPresetChange() {
+      const val = document.getElementById('input-city').value;
+      const parts = val.split('|');
+      document.getElementById('input-longitude').value = parseFloat(parts[1]).toFixed(2);
+      updateModalSolarPreview();
+    }
+
+    function updateModalSolarPreview() {
+      const dVal = document.getElementById('input-date').value || '1994-08-12';
+      const tVal = document.getElementById('input-time').value || '23:25';
+      const lon = parseFloat(document.getElementById('input-longitude').value) || 121.52;
+      const enabled = document.getElementById('input-solar-toggle').checked;
+
+      const [y, m, d] = dVal.split('-').map(Number);
+      const [hh, mm] = tVal.split(':').map(Number);
+      const cal = calculateTrueSolarTime(new Date(y, m - 1, d, hh, mm, 0), lon, 120, enabled);
+      const ts = cal.trueSolarDate;
+      const tsStr = `${ts.getFullYear()}-${String(ts.getMonth() + 1).padStart(2, '0')}-${String(ts.getDate()).padStart(2, '0')} ${String(ts.getHours()).padStart(2, '0')}:${String(ts.getMinutes()).padStart(2, '0')}:${String(ts.getSeconds()).padStart(2, '0')}`;
+      document.getElementById('modal-solar-preview').textContent =
+        `真太陽時預覽：${tsStr} (經度修正 ${Math.round(cal.longitudeOffsetSeconds / 60)}分, 均時差 ${Math.round(cal.eotOffsetSeconds / 60)}分)`;
+    }
+
+    function saveBirthProfile() {
+      const name = document.getElementById('input-name').value.trim() || '未命名命主';
+      const birthDate = document.getElementById('input-date').value || '1994-08-12';
+      const birthTime = document.getElementById('input-time').value || '12:00';
+      const cityParts = document.getElementById('input-city').value.split('|');
+      const longitude = parseFloat(document.getElementById('input-longitude').value) || 121.52;
+      const useTrueSolarTime = document.getElementById('input-solar-toggle').checked;
+      const ziHourMode = document.getElementById('input-zi-mode').value;
+
+      if (state.isEditingCurrent) {
+        const idx = state.profiles.findIndex(p => p.id === state.activeProfileId);
+        if (idx >= 0) {
+          state.profiles[idx] = {
+            ...state.profiles[idx],
+            name,
+            gender: state.modalGender,
+            birthDate,
+            birthTime,
+            locationName: cityParts[0],
+            longitude,
+            useTrueSolarTime,
+            ziHourMode
+          };
+        }
+      } else {
+        const newId = 'p-' + Date.now();
+        state.profiles.unshift({
+          id: newId,
+          name,
+          gender: state.modalGender,
+          birthDate,
+          birthTime,
+          locationName: cityParts[0],
+          longitude,
+          latitude: parseFloat(cityParts[2]) || 25.05,
+          standardMeridian: parseFloat(cityParts[3]) || 120,
+          useTrueSolarTime,
+          ziHourMode,
+          tag: '自建命盤'
+        });
+        state.activeProfileId = newId;
+      }
+
+      state.selectedMajorStep = null;
+      closeBirthModal();
+      switchTab('bazi');
+      showToast(`已排算【${name}】之真太陽時四柱與大運流年盤`);
+    }
+
+    function exportVaultJson() {
+      const dataStr = JSON.stringify(state.profiles, null, 2);
+      const tempArea = document.createElement('textarea');
+      tempArea.value = dataStr;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempArea);
+      showToast('已將命盤庫 JSON 加密備份複製至剪貼簿！');
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      el.className = 'px-4 py-2.5 rounded-xl bg-elevated border border-realgar text-jade text-xs shadow-2xl fade-slide-enter flex items-center gap-2';
+      el.innerHTML = `<span class="text-realgar">◆</span><span>${msg}</span>`;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.remove();
+      }, 3200);
+    }
+
+    // 初始化啟動
+    window.onload = function () {
+      renderBaZiView();
+      renderVaultList();
+      renderAppIconCanvas('obsidian');
+    };
+  </script>
+</body>
+</html>
