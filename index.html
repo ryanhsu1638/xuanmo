@@ -8,6 +8,8 @@
   <meta name="apple-mobile-web-app-title" content="玄墨萬年曆" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0F1115" />
+  <link id="apple-touch-icon-link" rel="apple-touch-icon" href="" />
+  <link id="pwa-manifest-link" rel="manifest" href="" />
   <title>玄墨萬年曆 — 專業子平八字與玄空通書黃曆</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -124,25 +126,12 @@
       }
     }
 
-    body.mobile-simulator-mode {
-      background-color: #07080A;
-      padding: 20px 0 40px 0;
-    }
-
-    body.mobile-simulator-mode #app-shell-container {
-      max-width: 412px;
-      margin: 0 auto;
-      border: 10px solid #252A34;
-      border-radius: 46px;
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 0 2px #D4AF37;
-      overflow-x: hidden;
-      background-color: var(--bg-obsidian);
-      position: relative;
-      min-height: 852px;
+    * {
+      -webkit-tap-highlight-color: transparent;
     }
 
     .safe-bottom-padding {
-      padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
     }
   </style>
 </head>
@@ -150,24 +139,12 @@
 <body class="min-h-screen flex flex-col selection:bg-realgar/30 selection:text-jade safe-bottom-padding">
   <div id="app-shell-container" class="flex-1 flex flex-col w-full">
 
-    <!-- Simulated iOS Dynamic Island Status Bar (Visible in Mobile Simulator Mode) -->
-    <div id="sim-status-bar" class="hidden bg-obsidian pt-2.5 pb-1.5 px-6 items-center justify-between text-[11px] font-mono text-jade select-none border-b border-hairline/40">
-      <span>9:41</span>
-      <div class="w-24 h-5 rounded-full bg-black border border-hairline/80 flex items-center justify-end px-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-500/80"></span>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <span>5G</span>
-        <span class="px-1 rounded bg-jade text-obsidian text-[9px] font-bold">100</span>
-      </div>
-    </div>
-
   <!-- Top Navigation Header -->
   <header class="sticky top-0 z-30 bg-obsidian/95 backdrop-blur-md border-b border-hairline">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <!-- Brand Identity -->
       <div class="flex items-center gap-3 shrink-0">
-        <!-- Precision SVG Cinnabar Seal Logo (Prevents any font overflow) -->
+        <!-- Precision SVG Cinnabar Seal Logo -->
         <div class="w-10 h-10 rounded-xl bg-gradient-to-b from-cinnabar/25 to-cinnabar/10 border border-cinnabar/80 p-0.5 flex items-center justify-center shadow-lg shadow-cinnabar/10 shrink-0 select-none">
           <svg class="w-full h-full" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="玄墨印章">
             <rect x="2.5" y="2.5" width="35" height="35" rx="6" stroke="#C83E3B" stroke-width="1.2" stroke-opacity="0.75" />
@@ -179,37 +156,29 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-serif text-lg sm:text-xl font-bold tracking-wider text-jade whitespace-nowrap">玄墨萬年曆</h1>
-            <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-realgar/15 text-realgar border border-realgar/40 whitespace-nowrap leading-none">APP v1.0</span>
+            <span class="text-[10px] font-serif px-1.5 py-0.5 rounded bg-realgar/15 text-realgar border border-realgar/40 whitespace-nowrap leading-none">專業版</span>
           </div>
           <p class="text-xs text-muted hidden sm:block mt-0.5">子平八字真太陽時精算 ‧ 順曆通書玄空九宮飛星</p>
         </div>
       </div>
 
-      <!-- Primary Module Switcher Tabs -->
+      <!-- Primary Module Switcher Tabs (Desktop/Tablet) -->
       <nav class="hidden md:flex items-center bg-ink p-1 rounded-xl border border-hairline shrink-0" role="tablist">
-        <button id="tab-bazi" onclick="switchTab('bazi')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 bg-elevated text-realgar border border-realgar/50 shadow whitespace-nowrap">
+        <button id="tab-bazi" onclick="switchTab('bazi')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 bg-elevated text-realgar border border-realgar/50 shadow whitespace-nowrap">
           <span class="font-serif">八字排盤</span>
         </button>
-        <button id="tab-almanac" onclick="switchTab('almanac')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap">
+        <button id="tab-almanac" onclick="switchTab('almanac')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap">
           <span class="font-serif">順曆黃曆</span>
         </button>
-        <button id="tab-vault" onclick="switchTab('vault')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap">
+        <button id="tab-vault" onclick="switchTab('vault')" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap">
           <span class="font-serif">命盤庫</span>
           <span id="vault-count-badge" class="text-[11px] font-mono px-1.5 py-0.5 rounded-full bg-obsidian text-realgar leading-none">4</span>
         </button>
-        <button id="tab-publish" onclick="switchTab('publish')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="font-serif">App上架中心</span>
-        </button>
       </nav>
 
-      <!-- Quick Actions: Mobile Simulator Toggle & New Chart -->
+      <!-- Quick Action: New Chart / Calibrate -->
       <div class="flex items-center gap-2 shrink-0">
-        <button id="btn-sim-toggle" onclick="toggleMobileSimulator()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-elevated hover:bg-hairline text-rice hover:text-jade border border-hairline transition flex items-center gap-1.5 whitespace-nowrap" title="切換 iPhone 手機外框預覽">
-          <svg class="w-3.5 h-3.5 text-realgar shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-          <span id="sim-toggle-label">手機外框預覽</span>
-        </button>
-        <button onclick="openBirthModal()" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-realgar/15 hover:bg-realgar/25 text-realgar border border-realgar/50 transition flex items-center gap-1.5 whitespace-nowrap">
+        <button onclick="openBirthModal(false)" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-realgar/15 hover:bg-realgar/25 text-realgar border border-realgar/50 transition flex items-center gap-1.5 whitespace-nowrap">
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           <span>排盤輸入</span>
         </button>
@@ -521,8 +490,8 @@
       <div class="ink-card rounded-2xl p-4 sm:p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-hairline pb-4">
           <div>
-            <h2 class="font-serif text-lg sm:text-xl font-bold text-jade">命盤檔案庫與離線快取中心</h2>
-            <p class="text-xs text-muted mt-0.5">點擊任意命盤即可切換排盤，設定為「★ 本人命盤」將自動連動順曆首頁的今日流日刑沖提醒</p>
+            <h2 class="font-serif text-lg sm:text-xl font-bold text-jade">命盤檔案庫（手機本機自動儲存）</h2>
+            <p class="text-xs text-muted mt-0.5">新增或修改的命盤皆會自動記憶在您的手機裡，關閉視窗也不會遺失</p>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="openBirthModal(false)" class="px-3 py-1.5 rounded-lg text-xs bg-realgar text-obsidian font-semibold hover:opacity-90 transition">
@@ -546,157 +515,111 @@
       </div>
     </section>
 
-    <!-- ==================== VIEW 4: APP STORE & GOOGLE PLAY PUBLISH CENTER ==================== -->
-    <section id="view-publish" class="hidden space-y-5 fade-slide-enter">
-      <!-- 4.1 Banner & Readiness Status -->
-      <div class="ink-card rounded-2xl p-5 border-l-4 border-l-realgar">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="space-y-1.5">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">READY FOR CAPACITOR / EXPO</span>
-              <h2 class="font-serif text-lg sm:text-xl font-bold text-jade">iOS App Store ＆ Android Google Play 雙平台上架工程中心</h2>
-            </div>
-            <p class="text-xs sm:text-sm text-rice">
-              本系統已配置完整離線運算引擎（零後端伺服器依賴、無 API 延遲、已內建 iOS Safe-Area 與底部原生導航列）。您可直接生成商店上架必備的 1024×1024 圖標，並透過 Capacitor 在 5 分鐘內打包出 Xcode (`.ipa`) 與 Android Studio (`.aab`) 安裝包。
-            </p>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button onclick="toggleMobileSimulator()" class="px-3.5 py-2 rounded-xl text-xs font-serif font-bold bg-realgar text-obsidian hover:opacity-90 transition whitespace-nowrap">
-              切換 iPhone 真機預覽
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4.2 High-Res 1024x1024 App Icon Generator & Downloader -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div class="lg:col-span-5 ink-card rounded-2xl p-5 flex flex-col items-center justify-between space-y-4">
-          <div class="w-full flex items-center justify-between border-b border-hairline pb-2.5">
-            <h3 class="font-serif font-bold text-base text-jade">1. 商店標準 App Icon 生成器</h3>
-            <span class="text-[11px] font-mono text-realgar">無透明通道 RGB (防蘋果退件)</span>
-          </div>
-
-          <!-- Hidden 1024x1024 Canvas + Visible Preview -->
-          <div class="p-3 rounded-3xl bg-obsidian border border-hairline shadow-2xl">
-            <canvas id="app-icon-canvas" width="1024" height="1024" class="w-44 h-44 sm:w-52 sm:h-52 rounded-[38px] shadow-lg"></canvas>
-          </div>
-
-          <div class="w-full space-y-2">
-            <div class="flex items-center justify-center gap-2 text-xs">
-              <button onclick="renderAppIconCanvas('obsidian')" class="px-2.5 py-1 rounded bg-elevated hover:bg-hairline text-jade border border-hairline">玄黑金印款 (推薦)</button>
-              <button onclick="renderAppIconCanvas('cinnabar')" class="px-2.5 py-1 rounded bg-cinnabar/20 hover:bg-cinnabar/30 text-red-200 border border-cinnabar/40">硃砂滿印款</button>
-            </div>
-            <div class="grid grid-cols-2 gap-2 pt-1">
-              <button onclick="downloadAppIcon(1024)" class="py-2 px-3 rounded-xl bg-realgar text-obsidian font-serif font-bold text-xs hover:opacity-95 transition">
-                ⬇ 下載 1024×1024 (iOS)
-              </button>
-              <button onclick="downloadAppIcon(512)" class="py-2 px-3 rounded-xl bg-elevated hover:bg-hairline text-jade border border-realgar/40 font-serif font-bold text-xs transition">
-                ⬇ 下載 512×512 (Android)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4.3 Capacitor 5-Minute Native Packaging Commands -->
-        <div class="lg:col-span-7 ink-card rounded-2xl p-5 space-y-3.5 flex flex-col justify-between">
-          <div class="flex items-center justify-between border-b border-hairline pb-2.5">
-            <div>
-              <h3 class="font-serif font-bold text-base text-jade">2. Capacitor 原生打包流水線（5分鐘轉 iOS / Android）</h3>
-              <p class="text-xs text-muted">直接將本單頁系統封裝為原生 WebView 雙平台 App，支援全離線秒開</p>
-            </div>
-            <button onclick="copyCapacitorSetup()" class="px-3 py-1.5 rounded-lg bg-realgar/20 hover:bg-realgar/30 text-realgar border border-realgar/40 text-xs font-medium whitespace-nowrap">
-              複製完整打包指令
-            </button>
-          </div>
-
-          <div class="bg-obsidian rounded-xl p-3.5 border border-hairline font-mono text-xs text-rice space-y-1.5 overflow-x-auto">
-            <div class="text-muted"># Step 1: 建立專案資料夾並放入本檔案 (命名為 www/index.html)</div>
-            <div class="text-jade">mkdir xuanmo-app && cd xuanmo-app && mkdir www</div>
-            <div class="text-jade">npm init -y && npm install @capacitor/core @capacitor/cli @capacitor/ios @capacitor/android</div>
-            <div class="text-muted pt-1"># Step 2: 初始化 App ID 與名稱</div>
-            <div class="text-realgar">npx cap init "玄墨萬年曆" "com.xuanmo.almanac" --web-dir www</div>
-            <div class="text-muted pt-1"># Step 3: 產生 Xcode (iOS) 與 Android Studio 原生工程並開啟</div>
-            <div class="text-jade">npx cap add ios && npx cap add android</div>
-            <div class="text-jade">npx cap sync && npx cap open ios</div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-            <div class="bg-obsidian/70 p-3 rounded-xl border border-hairline">
-              <div class="font-serif font-bold text-realgar mb-1">Apple App Store 必備參數</div>
-              <div class="font-mono text-[11px] text-rice space-y-0.5">
-                <div>Bundle ID: <span class="text-jade">com.xuanmo.almanac</span></div>
-                <div>主類別: <span class="text-jade">Reference (參考工具) / Lifestyle</span></div>
-                <div>年齡分級: <span class="text-jade">4+ (無博弈或迷信交易)</span></div>
-              </div>
-            </div>
-            <div class="bg-obsidian/70 p-3 rounded-xl border border-hairline">
-              <div class="font-serif font-bold text-wx-wood mb-1">Google Play Console 必備參數</div>
-              <div class="font-mono text-[11px] text-rice space-y-0-5">
-                <div>Package: <span class="text-jade">com.xuanmo.almanac</span></div>
-                <div>Target SDK: <span class="text-jade">API 35 (Android 15)</span></div>
-                <div>資料安全性: <span class="text-jade">不收集任何遠端個資 (全本地)</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4.4 App Store Guideline 4.2 / 4.3 Anti-Rejection & Privacy Compliance Generator -->
-      <div class="ink-card rounded-2xl p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline pb-3">
-          <div>
-            <h3 class="font-serif font-bold text-base text-jade">3. Apple App Store 命理曆法類防退件（Guideline 4.2 / 4.3）與隱私權合規包</h3>
-            <p class="text-xs text-muted">蘋果審核對「占卜算命類」審查嚴格，以下為您準備好通過率最高的「天文曆法與傳統干支文化研究工具」合規文案</p>
-          </div>
-          <button onclick="copyComplianceText()" class="px-3 py-1.5 rounded-lg bg-elevated hover:bg-hairline text-realgar border border-realgar/40 text-xs font-medium">
-            複製商店描述與隱私權聲明
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-          <div class="bg-obsidian/80 p-3.5 rounded-xl border border-hairline space-y-1.5">
-            <div class="font-serif font-bold text-realgar">★ 防 4.3 垃圾應用退件策略</div>
-            <p class="text-rice leading-relaxed">
-              提審時於「審核備註 (Review Notes)」強調本 App 內建 **Spencer (1971) 天文均時差真太陽時公式** 與 **VSOP87 節氣天文演算法**，定位為「專業天文干支萬年曆與傳統擇日文化查閱工具」，而非單純隨機抽籤算命網頁。
-            </p>
-          </div>
-          <div class="bg-obsidian/80 p-3.5 rounded-xl border border-hairline space-y-1.5">
-            <div class="font-serif font-bold text-wx-wood">★ 零伺服器隱私權優勢</div>
-            <p class="text-rice leading-relaxed">
-              所有八字生辰、經緯度與命盤庫資料 100% 儲存於使用者手機本地端，無任何第三方廣告追蹤 SDK，App Store 隱私權標籤可直接勾選「未收集資料 (Data Not Collected)」，大幅加速過審。
-            </p>
-          </div>
-          <div class="bg-obsidian/80 p-3.5 rounded-xl border border-hairline space-y-1.5">
-            <div class="font-serif font-bold text-red-300">★ 必備免責聲明（已內嵌頁尾）</div>
-            <p class="text-rice leading-relaxed">
-              商店說明欄底部務必附上：「本軟體提供之干支曆法、節氣與九宮飛星資訊僅供傳統民俗文化研究與日程規劃參考，不構成任何醫療、法律或財務投資建議。」
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
   </main>
 
-  <!-- Native Mobile Bottom Tab Bar (Visible on Mobile & Simulator Mode) -->
+  <!-- Native Mobile Bottom Tab Bar (3 Pure Functional Modules) -->
   <nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-obsidian/95 backdrop-blur-lg border-t border-hairline px-2 py-1.5 flex md:hidden items-center justify-around select-none">
-    <button id="m-tab-bazi" onclick="switchTab('bazi')" class="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-realgar">
+    <button id="m-tab-bazi" onclick="switchTab('bazi')" class="flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl text-realgar font-bold">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      <span class="text-[11px] font-serif font-bold">八字排盤</span>
+      <span class="text-[11px] font-serif">八字排盤</span>
     </button>
-    <button id="m-tab-almanac" onclick="switchTab('almanac')" class="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-muted">
+    <button id="m-tab-almanac" onclick="switchTab('almanac')" class="flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl text-muted">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       <span class="text-[11px] font-serif">順曆黃曆</span>
     </button>
-    <button id="m-tab-vault" onclick="switchTab('vault')" class="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-muted">
+    <button id="m-tab-vault" onclick="switchTab('vault')" class="flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl text-muted">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
       <span class="text-[11px] font-serif">命盤庫</span>
     </button>
-    <button id="m-tab-publish" onclick="switchTab('publish')" class="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-muted">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-      <span class="text-[11px] font-serif">App上架</span>
-    </button>
   </nav>
+
+  <!-- Birth Input & True Solar Time Calibration Modal -->
+  <div id="birth-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="ink-card rounded-2xl max-w-lg w-full p-5 space-y-4 border border-realgar/40 shadow-2xl fade-slide-enter max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-hairline pb-3">
+        <h3 id="modal-title" class="font-serif font-bold text-lg text-jade">新增專業八字排盤</h3>
+        <button onclick="closeBirthModal()" class="text-muted hover:text-jade p-1 text-sm">✕</button>
+      </div>
+
+      <div class="space-y-3.5 text-xs sm:text-sm">
+        <!-- Name & Gender -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-muted mb-1">命主姓名 / 稱謂</label>
+            <input id="input-name" type="text" value="林先生" class="w-full bg-obsidian text-jade px-3 py-2 rounded-lg border border-hairline focus:border-realgar focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs text-muted mb-1">性別（決定大運順逆排）</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btn-gender-male" onclick="selectModalGender('male')" class="py-2 rounded-lg border border-realgar bg-realgar/20 text-realgar font-serif font-bold">乾造 (男)</button>
+              <button type="button" id="btn-gender-female" onclick="selectModalGender('female')" class="py-2 rounded-lg border border-hairline bg-obsidian text-rice">坤造 (女)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Birth Date & Time -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-muted mb-1">出生公曆日期 (1900~2100)</label>
+            <input id="input-date" type="date" value="1994-08-12" onchange="updateModalSolarPreview()" class="w-full bg-obsidian text-jade font-mono px-3 py-2 rounded-lg border border-hairline focus:border-realgar focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs text-muted mb-1">出生鐘錶時間 (24小時制)</label>
+            <input id="input-time" type="time" value="23:25" onchange="updateModalSolarPreview()" class="w-full bg-obsidian text-jade font-mono px-3 py-2 rounded-lg border border-hairline focus:border-realgar focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Location & Longitude -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-muted mb-1">出生地預設城市</label>
+            <select id="input-city" onchange="onCityPresetChange()" class="w-full bg-obsidian text-jade px-3 py-2 rounded-lg border border-hairline focus:border-realgar focus:outline-none">
+              <option value="台灣 台北市|121.52|25.05|120">台灣 台北市 (121.52°E)</option>
+              <option value="台灣 宜蘭縣|121.76|24.75|120">台灣 宜蘭縣 (121.76°E)</option>
+              <option value="台灣 新北市|121.46|25.01|120">台灣 新北市 (121.46°E)</option>
+              <option value="台灣 台中市|120.67|24.15|120">台灣 台中市 (120.67°E)</option>
+              <option value="台灣 台南市|120.20|22.99|120">台灣 台南市 (120.20°E)</option>
+              <option value="台灣 高雄市|120.30|22.62|120">台灣 高雄市 (120.30°E)</option>
+              <option value="香港 中環|114.17|22.32|120">香港 中環 (114.17°E)</option>
+              <option value="中國 北京市|116.40|39.90|120">中國 北京市 (116.40°E)</option>
+              <option value="中國 上海市|121.47|31.23|120">中國 上海市 (121.47°E)</option>
+              <option value="中國 廣州市|113.26|23.13|120">中國 廣州市 (113.26°E)</option>
+              <option value="中國 成都市|104.06|30.67|120">中國 成都市 (104.06°E)</option>
+              <option value="新加坡|103.82|1.35|120">新加坡 (103.82°E)</option>
+              <option value="馬來西亞 吉隆坡|101.69|3.14|120">馬來西亞 吉隆坡 (101.69°E)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-muted mb-1">精確東經度數 (可手動微調)</label>
+            <input id="input-longitude" type="number" step="0.01" value="121.52" oninput="updateModalSolarPreview()" class="w-full bg-obsidian text-jade font-mono px-3 py-2 rounded-lg border border-hairline focus:border-realgar focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- True Solar Time & Zi Hour Mode -->
+        <div class="bg-obsidian/80 p-3 rounded-xl border border-hairline space-y-2.5">
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-xs text-jade font-medium">啟用天文真太陽時校正 (經度差 + Spencer 均時差)</span>
+            <input id="input-solar-toggle" type="checkbox" checked onchange="updateModalSolarPreview()" class="accent-amber-500 w-4 h-4" />
+          </label>
+          <div id="modal-solar-preview" class="text-[11px] font-mono text-realgar">
+            真太陽時預覽：計算中...
+          </div>
+          <div class="pt-1 border-t border-hairline/70 flex items-center justify-between gap-2">
+            <span class="text-xs text-muted">子時換日規則</span>
+            <select id="input-zi-mode" class="bg-ink text-jade text-xs px-2.5 py-1.5 rounded border border-hairline focus:outline-none">
+              <option value="split_zi">區分早夜子時 (23:00~24:00 日柱不換)</option>
+              <option value="whole_zi">傳統子時換日 (23:00 直接換次日日柱)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-hairline">
+        <button onclick="closeBirthModal()" class="px-4 py-2 rounded-xl text-xs bg-elevated text-rice hover:text-jade border border-hairline">取消</button>
+        <button onclick="saveBirthProfile()" class="px-5 py-2 rounded-xl text-xs bg-realgar text-obsidian font-serif font-bold hover:opacity-95">開始排盤精算</button>
+      </div>
+    </div>
+  </div>
 
   </div>
 
@@ -1536,67 +1459,71 @@
       return map[zhi] || '順應天時，擇吉行事。';
     }
 
-    // 9. 全域狀態管理 (State Store)
+    // 9. 全域狀態管理與手機本地持久化 (State Store + LocalStorage)
+    const STORAGE_KEY = 'XUANMO_VAULT_DATA_V1';
+
+    const DEFAULT_PROFILES = [
+      {
+        id: 'p-1',
+        name: '林先生',
+        gender: 'male',
+        birthDate: '1994-08-12',
+        birthTime: '23:25',
+        locationName: '台灣 台北市',
+        longitude: 121.52,
+        latitude: 25.05,
+        standardMeridian: 120,
+        useTrueSolarTime: true,
+        ziHourMode: 'split_zi',
+        tag: '本人 / 範例'
+      },
+      {
+        id: 'p-2',
+        name: '蘇女士',
+        gender: 'female',
+        birthDate: '1998-05-18',
+        birthTime: '14:20',
+        locationName: '台灣 宜蘭縣冬山鄉',
+        longitude: 121.79,
+        latitude: 24.63,
+        standardMeridian: 120,
+        useTrueSolarTime: true,
+        ziHourMode: 'split_zi',
+        tag: '親友'
+      },
+      {
+        id: 'p-3',
+        name: '陳總監',
+        gender: 'male',
+        birthDate: '1986-11-08',
+        birthTime: '08:15',
+        locationName: '台灣 台中市',
+        longitude: 120.67,
+        latitude: 24.15,
+        standardMeridian: 120,
+        useTrueSolarTime: true,
+        ziHourMode: 'split_zi',
+        tag: '商業客戶'
+      },
+      {
+        id: 'p-4',
+        name: '張小姐',
+        gender: 'female',
+        birthDate: '1992-02-04',
+        birthTime: '19:45',
+        locationName: '香港 中環',
+        longitude: 114.17,
+        latitude: 22.32,
+        standardMeridian: 120,
+        useTrueSolarTime: true,
+        ziHourMode: 'split_zi',
+        tag: '立春交節案例'
+      }
+    ];
+
     const state = {
       activeTab: 'bazi',
-      profiles: [
-        {
-          id: 'p-1',
-          name: '林先生',
-          gender: 'male',
-          birthDate: '1994-08-12',
-          birthTime: '23:25',
-          locationName: '台灣 台北市',
-          longitude: 121.52,
-          latitude: 25.05,
-          standardMeridian: 120,
-          useTrueSolarTime: true,
-          ziHourMode: 'split_zi',
-          tag: '本人 / 範例'
-        },
-        {
-          id: 'p-2',
-          name: '蘇女士',
-          gender: 'female',
-          birthDate: '1998-05-18',
-          birthTime: '14:20',
-          locationName: '台灣 宜蘭縣冬山鄉',
-          longitude: 121.79,
-          latitude: 24.63,
-          standardMeridian: 120,
-          useTrueSolarTime: true,
-          ziHourMode: 'split_zi',
-          tag: '親友'
-        },
-        {
-          id: 'p-3',
-          name: '陳總監',
-          gender: 'male',
-          birthDate: '1986-11-08',
-          birthTime: '08:15',
-          locationName: '台灣 台中市',
-          longitude: 120.67,
-          latitude: 24.15,
-          standardMeridian: 120,
-          useTrueSolarTime: true,
-          ziHourMode: 'split_zi',
-          tag: '商業客戶'
-        },
-        {
-          id: 'p-4',
-          name: '張小姐',
-          gender: 'female',
-          birthDate: '1992-02-04',
-          birthTime: '19:45',
-          locationName: '香港 中環',
-          longitude: 114.17,
-          latitude: 22.32,
-          standardMeridian: 120,
-          useTrueSolarTime: true,
-          ziHourMode: 'split_zi',
-          tag: '立春交節案例'
-        }
-      ],
+      profiles: DEFAULT_PROFILES,
       activeProfileId: 'p-1',
       primaryProfileId: 'p-1', // 綁定首頁日運刑沖提示之本人命盤
       currentChart: null,
@@ -1608,6 +1535,84 @@
       modalGender: 'male',
       isEditingCurrent: false
     };
+
+    // 讀取與寫入本機記憶庫 (關閉網頁或重新開機都不會遺失命盤)
+    function loadSavedStateFromPhone() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.profiles) && parsed.profiles.length > 0) {
+          state.profiles = parsed.profiles;
+        }
+        if (parsed.activeProfileId) state.activeProfileId = parsed.activeProfileId;
+        if (parsed.primaryProfileId) state.primaryProfileId = parsed.primaryProfileId;
+      } catch (err) {
+        // Fallback to default profiles
+      }
+    }
+
+    function saveStateToPhone() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          profiles: state.profiles,
+          activeProfileId: state.activeProfileId,
+          primaryProfileId: state.primaryProfileId
+        }));
+      } catch (err) {
+        // Ignore storage quota error
+      }
+    }
+
+    // 自動生成「加到手機主畫面」專用玄墨印章 App Icon 與全螢幕 Manifest
+    function setupPhoneHomeScreenApp() {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#0F1115';
+        ctx.fillRect(0, 0, 512, 512);
+        ctx.strokeStyle = '#C83E3B';
+        ctx.lineWidth = 18;
+        ctx.strokeRect(46, 46, 420, 420);
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(68, 68, 376, 376);
+        ctx.beginPath();
+        ctx.moveTo(256, 78);
+        ctx.lineTo(256, 434);
+        ctx.strokeStyle = 'rgba(200, 62, 59, 0.45)';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        ctx.font = '900 165px "Noto Serif TC", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#F28B88';
+        ctx.fillText('玄', 162, 266);
+        ctx.fillStyle = '#F2EFE9';
+        ctx.fillText('墨', 350, 266);
+
+        const iconDataUrl = canvas.toDataURL('image/png');
+        const appleLink = document.getElementById('apple-touch-icon-link');
+        if (appleLink) appleLink.href = iconDataUrl;
+
+        const manifestObj = {
+          name: '玄墨萬年曆',
+          short_name: '玄墨萬年曆',
+          start_url: '.',
+          display: 'standalone',
+          background_color: '#0F1115',
+          theme_color: '#0F1115',
+          orientation: 'portrait',
+          icons: [{ src: iconDataUrl, sizes: '512x512', type: 'image/png' }]
+        };
+        const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestLink = document.getElementById('pwa-manifest-link');
+        if (manifestLink) manifestLink.href = URL.createObjectURL(blob);
+      } catch (e) {}
+    }
 
     // 10. 渲染八字排盤主視圖
     function renderBaZiView() {
@@ -2141,12 +2146,14 @@
     function loadProfileFromVault(id) {
       state.activeProfileId = id;
       state.selectedMajorStep = null;
+      saveStateToPhone();
       switchTab('bazi');
       showToast('已切換命盤並完成真太陽時與大運排算');
     }
 
     function bindPrimaryFromVault(id) {
       state.primaryProfileId = id;
+      saveStateToPhone();
       renderVaultList();
       renderBaZiView();
       showToast('已綁定為「本人命盤」，順曆首頁將同步更新您的流日刑沖提示');
@@ -2154,6 +2161,7 @@
 
     function setAsPrimaryProfile() {
       state.primaryProfileId = state.activeProfileId;
+      saveStateToPhone();
       renderBaZiView();
       showToast('已設為本人命盤！可前往「順曆黃曆」查看今日流日刑沖');
     }
@@ -2161,149 +2169,37 @@
     // 15. 彈窗與標籤頁切換控制
     function switchTab(tab) {
       state.activeTab = tab;
-      ['bazi', 'almanac', 'vault', 'publish'].forEach(t => {
+      ['bazi', 'almanac', 'vault'].forEach(t => {
         const view = document.getElementById(`view-${t}`);
         const btn = document.getElementById(`tab-${t}`);
         const mBtn = document.getElementById(`m-tab-${t}`);
         if (t === tab) {
           view?.classList.remove('hidden');
-          if (btn) btn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 bg-elevated text-realgar border border-realgar/50 shadow whitespace-nowrap';
-          if (mBtn) mBtn.className = 'flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-realgar font-bold';
+          if (btn) btn.className = 'px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 bg-elevated text-realgar border border-realgar/50 shadow whitespace-nowrap';
+          if (mBtn) mBtn.className = 'flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl text-realgar font-bold';
         } else {
           view?.classList.add('hidden');
-          if (btn) btn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap';
-          if (mBtn) mBtn.className = 'flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-muted hover:text-rice';
+          if (btn) btn.className = 'px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 text-rice hover:text-jade whitespace-nowrap';
+          if (mBtn) mBtn.className = 'flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl text-muted hover:text-rice';
         }
       });
 
       if (tab === 'bazi') renderBaZiView();
       if (tab === 'almanac') renderAlmanacView();
       if (tab === 'vault') renderVaultList();
-      if (tab === 'publish') renderAppIconCanvas(state.iconTheme || 'obsidian');
     }
 
-    // 16. 手機真機外框預覽模式與 1024x1024 商店圖標生成器
-    function toggleMobileSimulator() {
-      state.mobileSimulator = !state.mobileSimulator;
-      document.body.classList.toggle('mobile-simulator-mode', state.mobileSimulator);
-      const simBar = document.getElementById('sim-status-bar');
-      const mNav = document.getElementById('mobile-bottom-nav');
-      const label = document.getElementById('sim-toggle-label');
-
-      if (state.mobileSimulator) {
-        simBar.classList.remove('hidden');
-        simBar.classList.add('flex');
-        mNav.classList.remove('md:hidden');
-        label.textContent = '退出手機外框';
-        showToast('已切換為 iPhone 手機真機預覽模式');
-      } else {
-        simBar.classList.add('hidden');
-        simBar.classList.remove('flex');
-        mNav.classList.add('md:hidden');
-        label.textContent = '手機外框預覽';
-        showToast('已切換回全寬度響應式視圖');
+    // 支援 Android 原生實體返回鍵 (Capacitor / Cordova / WebView)
+    document.addEventListener('backbutton', function (e) {
+      const modal = document.getElementById('birth-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        e.preventDefault();
+        closeBirthModal();
+      } else if (state.activeTab !== 'bazi') {
+        e.preventDefault();
+        switchTab('bazi');
       }
-    }
-
-    function renderAppIconCanvas(theme = 'obsidian') {
-      state.iconTheme = theme;
-      const canvas = document.getElementById('app-icon-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const W = 1024;
-      const H = 1024;
-
-      // 1. 不透明滿版底色 (符合 Apple App Store 嚴格禁透明通道規範)
-      const grad = ctx.createRadialGradient(W * 0.5, H * 0.35, 80, W * 0.5, H * 0.5, 720);
-      if (theme === 'cinnabar') {
-        grad.addColorStop(0, '#9E2A28');
-        grad.addColorStop(1, '#3D1010');
-      } else {
-        grad.addColorStop(0, '#1D222C');
-        grad.addColorStop(1, '#0F1115');
-      }
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
-
-      // 2. 外層金石篆刻雙邊框
-      ctx.strokeStyle = theme === 'cinnabar' ? '#F2EFE9' : '#C83E3B';
-      ctx.lineWidth = 28;
-      ctx.strokeRect(110, 110, W - 220, H - 220);
-
-      ctx.strokeStyle = '#D4AF37';
-      ctx.lineWidth = 8;
-      ctx.strokeRect(148, 148, W - 296, H - 296);
-
-      // 3. 中央分割界格線
-      ctx.beginPath();
-      ctx.moveTo(W / 2, 168);
-      ctx.lineTo(W / 2, H - 168);
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
-      ctx.lineWidth = 6;
-      ctx.stroke();
-
-      // 4. 繪製「玄墨」大字與「萬年曆」副標
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = '900 330px "Noto Serif TC", serif';
-      ctx.fillStyle = theme === 'cinnabar' ? '#F2EFE9' : '#F28B88';
-      ctx.fillText('玄', W * 0.31, H * 0.46);
-
-      ctx.fillStyle = '#F2EFE9';
-      ctx.fillText('墨', W * 0.69, H * 0.46);
-
-      // 底部雄黃金銘文
-      ctx.font = '600 56px "Noto Serif TC", serif';
-      ctx.fillStyle = '#D4AF37';
-      ctx.fillText('子 平 八 字 ‧ 通 書 黃 曆', W * 0.5, H * 0.78);
-    }
-
-    function downloadAppIcon(size = 1024) {
-      renderAppIconCanvas(state.iconTheme || 'obsidian');
-      const srcCanvas = document.getElementById('app-icon-canvas');
-      const outCanvas = document.createElement('canvas');
-      outCanvas.width = size;
-      outCanvas.height = size;
-      const outCtx = outCanvas.getContext('2d');
-      outCtx.drawImage(srcCanvas, 0, 0, size, size);
-
-      const link = document.createElement('a');
-      link.download = `xuanmo-app-icon-${size}x${size}.png`;
-      link.href = outCanvas.toDataURL('image/png');
-      link.click();
-      showToast(`已下載 ${size}×${size} 商店標準無透明通道 PNG 圖標！`);
-    }
-
-    function copyCapacitorSetup() {
-      const cmd = [
-        'mkdir xuanmo-app && cd xuanmo-app && mkdir www',
-        '# 將玄墨萬年曆 HTML 存為 www/index.html',
-        'npm init -y',
-        'npm install @capacitor/core @capacitor/cli @capacitor/ios @capacitor/android',
-        'npx cap init "玄墨萬年曆" "com.xuanmo.almanac" --web-dir www',
-        'npx cap add ios',
-        'npx cap add android',
-        'npx cap sync'
-      ].join('\n');
-      const ta = document.createElement('textarea');
-      ta.value = cmd;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast('已複製 Capacitor 雙平台打包指令至剪貼簿！');
-    }
-
-    function copyComplianceText() {
-      const txt = `【App Store / Google Play 商店標題】\n玄墨萬年曆 - 專業子平八字真太陽時與玄空通書黃曆\n\n【App 審核備註 (Review Notes)】\n本應用程式內建高精度天文曆法計算引擎（包含 Spencer 1971 均時差真太陽時校正公式與二十四節氣秒級交接演算法），提供華人傳統干支曆法查詢、節氣起運折算與日常擇日宜忌參考。所有運算與命盤建檔皆 100% 於使用者裝置本地端完成，不收集任何個人隱私數據。\n\n【免責聲明】\n本軟體提供之傳統干支曆法與玄空九宮飛星資訊僅供民俗文化研究與日程規劃參考，不構成任何醫療、法律或財務建議。`;
-      const ta = document.createElement('textarea');
-      ta.value = txt;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast('已複製 App Store 提審備註與合規免責聲明！');
-    }
+    }, false);
 
     function openBirthModal(editCurrent = false) {
       state.isEditingCurrent = editCurrent;
@@ -2413,9 +2309,10 @@
       }
 
       state.selectedMajorStep = null;
+      saveStateToPhone();
       closeBirthModal();
       switchTab('bazi');
-      showToast(`已排算【${name}】之真太陽時四柱與大運流年盤`);
+      showToast(`已排算並於手機本機儲存【${name}】之命盤`);
     }
 
     function exportVaultJson() {
@@ -2442,9 +2339,10 @@
 
     // 初始化啟動
     window.onload = function () {
+      loadSavedStateFromPhone();
+      setupPhoneHomeScreenApp();
       renderBaZiView();
       renderVaultList();
-      renderAppIconCanvas('obsidian');
     };
   </script>
 </body>
